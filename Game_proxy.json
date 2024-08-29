@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "turtle-wow.org",
+        "cn.turtle-wow.org",
+        "plashspeed.top"
+      ]
+    },
+    {
+      "domain_suffix": [
+        ".turtle-wow.org",
+        "cn.turtle-wow.org",
+        "plashspeed.top"
+      ]
+    },
+    {
+      "domain_keyword": [
+        "turtle-wow"
+      ]
+    },
+    {
+      "ip_cidr": [
+        "169.150.222.223/32"
+      ]
+    }
+  ]
+}
