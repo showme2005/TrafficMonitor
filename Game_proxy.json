@@ -5,24 +5,26 @@
       "domain": [
         "turtle-wow.org",
         "cn.turtle-wow.org",
-        "plashspeed.top"
+        "plashspeed.top",
+        "nfuwow.com"
       ]
     },
     {
       "domain_suffix": [
         ".turtle-wow.org",
         "cn.turtle-wow.org",
-        "plashspeed.top"
+        "plashspeed.top",
+        "80.nfuwow.com"
       ]
     },
     {
       "domain_keyword": [
-        "turtle-wow"
+        "turtle-wow","nfuwow.com"
       ]
     },
     {
       "ip_cidr": [
-        "169.150.222.223/32"
+        "169.150.222.223/32","39.98.118.246/32"
       ]
     }
   ]
