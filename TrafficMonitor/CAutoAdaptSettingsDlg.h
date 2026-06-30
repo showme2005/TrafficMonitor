@@ -1,9 +1,9 @@
 ﻿#pragma once
-
+#include "BaseDialog.h"
 
 // CAutoAdaptSettingsDlg 对话框
 
-class CAutoAdaptSettingsDlg : public CDialog
+class CAutoAdaptSettingsDlg : public CBaseDialog
 {
 	DECLARE_DYNAMIC(CAutoAdaptSettingsDlg)
 
@@ -20,6 +20,7 @@ private:
 	CComboBox m_dark_mode_default_style_combo;
 	CComboBox m_light_mode_default_style_combo;
 	TaskBarSettingData& m_data;
+    CToolTipCtrl m_toolTip;
 
 private:
 	void InitComboBox(CComboBox& combo_box, int style_sel);
@@ -27,9 +28,12 @@ private:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+    virtual CString GetDialogName() const override;
+    virtual bool InitializeControls() override;
 
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

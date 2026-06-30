@@ -7,6 +7,9 @@
 #include "afxdialogex.h"
 #include "CMFCColorDialogEx.h"
 #include "DisplayTextSettingDlg.h"
+#include "FileDialogEx.h"
+#include "TrafficMonitorDlg.h"
+#include "SkinManager.h"
 
 // CMainWndSettingsDlg 对话框
 
@@ -30,6 +33,42 @@ void CMainWndSettingsDlg::SetControlMouseWheelEnable(bool enable)
     m_memory_display_combo.SetMouseWheelEnable(enable);
 }
 
+bool CMainWndSettingsDlg::InitializeControls()
+{
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_FONT_STATIC },
+        { CtrlTextInfo::C0, IDC_FONT_NAME_EDIT },
+        { CtrlTextInfo::R1, IDC_FONT_SIZE_STATIC },
+        { CtrlTextInfo::R2, IDC_FONT_SIZE_EDIT },
+        { CtrlTextInfo::R3, IDC_SET_FONT_BUTTON, CtrlTextInfo::W16 }
+        });
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L2, IDC_TXT_COLOR_LABEL_STATIC },
+        { CtrlTextInfo::L1, IDC_TEXT_COLOR_STATIC },
+        { CtrlTextInfo::C0, IDC_SPECIFY_EACH_ITEM_COLOR_CHECK, CtrlTextInfo::W16 },
+        { CtrlTextInfo::R1, IDC_RESOTRE_SKIN_DEFAULT_BUTTON, CtrlTextInfo::W16 }
+    });
+
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_DISPLAY_TEXT_SETTING_BUTTON, CtrlTextInfo::W16 }
+    });
+
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L1, IDC_MEMORY_DISPLAY_MODE_STATIC },
+        { CtrlTextInfo::C0, IDC_MEMORY_DISPLAY_COMBO }
+    });
+
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L1, IDC_DOUBLE_CLICK_ACTION_STATIC },
+        { CtrlTextInfo::C0, IDC_DOUBLE_CLICK_COMBO },
+        { CtrlTextInfo::L1, IDC_EXE_PATH_STATIC },
+        { CtrlTextInfo::C0, IDC_EXE_PATH_EDIT },
+        { CtrlTextInfo::R1, IDC_BROWSE_BUTTON }
+    });
+
+    return true;
+}
+
 void CMainWndSettingsDlg::DrawStaticColor()
 {
     //CCommon::FillStaticColor(m_color_static, m_data.text_color);
@@ -37,12 +76,9 @@ void CMainWndSettingsDlg::DrawStaticColor()
         return;
     if (m_data.specify_each_item_color)
     {
-        int color_num{};
-#ifdef WITHOUT_TEMPERATURE
-        color_num = 4;
-#else
-        color_num = 8;
-#endif
+        int color_num{ static_cast<int>(m_data.text_colors.size()) };
+        if (color_num > 16)
+            color_num = 16;
         m_color_static.SetColorNum(color_num);
         int index{};
         for (const auto& item : m_data.text_colors)
@@ -126,6 +162,12 @@ BEGIN_MESSAGE_MAP(CMainWndSettingsDlg, CTabDlg)
     ON_BN_CLICKED(IDC_BROWSE_BUTTON, &CMainWndSettingsDlg::OnBnClickedBrowseButton)
     ON_BN_CLICKED(IDC_DISPLAY_TEXT_SETTING_BUTTON, &CMainWndSettingsDlg::OnBnClickedDisplayTextSettingButton)
     ON_CBN_SELCHANGE(IDC_MEMORY_DISPLAY_COMBO, &CMainWndSettingsDlg::OnCbnSelchangeMemoryDisplayCombo)
+    ON_BN_CLICKED(IDC_ALWAYS_ON_TOP_CHECK, &CMainWndSettingsDlg::OnBnClickedAlwaysOnTopCheck)
+    ON_BN_CLICKED(IDC_MOUSE_PENETRATE_CHECK, &CMainWndSettingsDlg::OnBnClickedMousePenetrateCheck)
+    ON_BN_CLICKED(IDC_LOCK_WINDOW_POS_CHECK, &CMainWndSettingsDlg::OnBnClickedLockWindowPosCheck)
+    ON_BN_CLICKED(IDC_ALOW_OUT_OF_BORDER_CHECK, &CMainWndSettingsDlg::OnBnClickedAlowOutOfBorderCheck)
+    ON_BN_CLICKED(IDC_RESOTRE_SKIN_DEFAULT_BUTTON, &CMainWndSettingsDlg::OnBnClickedResotreSkinDefaultButton)
+    ON_EN_CHANGE(IDC_FONT_SIZE_EDIT, &CMainWndSettingsDlg::OnEnChangeFontSizeEdit)
 END_MESSAGE_MAP()
 
 
@@ -213,6 +255,11 @@ BOOL CMainWndSettingsDlg::OnInitDialog()
     m_memory_display_combo.AddString(CCommon::LoadText(IDS_MEMORY_USED));
     m_memory_display_combo.AddString(CCommon::LoadText(IDS_MEMORY_AVAILABLE));
     m_memory_display_combo.SetCurSel(static_cast<int>(m_data.memory_display));
+
+    CheckDlgButton(IDC_ALWAYS_ON_TOP_CHECK, m_data.m_always_on_top);
+    CheckDlgButton(IDC_MOUSE_PENETRATE_CHECK, m_data.m_mouse_penetrate);
+    CheckDlgButton(IDC_LOCK_WINDOW_POS_CHECK, m_data.m_lock_window_pos);
+    CheckDlgButton(IDC_ALOW_OUT_OF_BORDER_CHECK, m_data.m_alow_out_of_border);
 
     ////设置控件不响应鼠标滚轮消息
     //m_unit_combo.SetMouseWheelEnable(false);
@@ -318,9 +365,7 @@ void CMainWndSettingsDlg::OnBnClickedSetFontButton()
         m_data.font.strike_out = (fontDlg.IsStrikeOut() != FALSE);
         //将字体信息显示出来
         SetDlgItemText(IDC_FONT_NAME_EDIT, m_data.font.name);
-        wchar_t buff[16];
-        swprintf_s(buff, L"%d", m_data.font.size);
-        SetDlgItemText(IDC_FONT_SIZE_EDIT, buff);
+        SetDlgItemText(IDC_FONT_SIZE_EDIT, std::to_wstring(m_data.font.size).c_str());
     }
 }
 
@@ -493,7 +538,7 @@ void CMainWndSettingsDlg::OnBnClickedBrowseButton()
 {
     // TODO: 在此添加控件通知处理程序代码
     CString szFilter = CCommon::LoadText(IDS_EXE_FILTER);
-    CFileDialog fileDlg(TRUE, NULL, NULL, 0, szFilter, this);
+    CFileDialogEx fileDlg(TRUE, NULL, szFilter);
     if (IDOK == fileDlg.DoModal())
     {
         m_data.double_click_exe = fileDlg.GetPathName();
@@ -514,4 +559,57 @@ void CMainWndSettingsDlg::OnCbnSelchangeMemoryDisplayCombo()
 {
     // TODO: 在此添加控件通知处理程序代码
     m_data.memory_display = static_cast<MemoryDisplay>(m_memory_display_combo.GetCurSel());
+}
+
+
+void CMainWndSettingsDlg::OnBnClickedAlwaysOnTopCheck()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    m_data.m_always_on_top = IsDlgButtonChecked(IDC_ALWAYS_ON_TOP_CHECK) != 0;
+}
+
+
+void CMainWndSettingsDlg::OnBnClickedMousePenetrateCheck()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    m_data.m_mouse_penetrate = IsDlgButtonChecked(IDC_MOUSE_PENETRATE_CHECK) != 0;
+}
+
+
+void CMainWndSettingsDlg::OnBnClickedLockWindowPosCheck()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    m_data.m_lock_window_pos = IsDlgButtonChecked(IDC_LOCK_WINDOW_POS_CHECK) != 0;
+}
+
+
+void CMainWndSettingsDlg::OnBnClickedAlowOutOfBorderCheck()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    m_data.m_alow_out_of_border = IsDlgButtonChecked(IDC_ALOW_OUT_OF_BORDER_CHECK) != 0;
+}
+
+
+void CMainWndSettingsDlg::OnBnClickedResotreSkinDefaultButton()
+{
+    SkinSettingData skin_setting_data;
+    CTrafficMonitorDlg* pMainWnd = CTrafficMonitorDlg::Instance();
+    if (pMainWnd != nullptr)
+    {
+        CSkinManager::SkinSettingDataFronSkin(skin_setting_data, pMainWnd->GetCurSkin());
+        m_data.text_colors = skin_setting_data.text_colors;
+        m_data.specify_each_item_color = skin_setting_data.specify_each_item_color;
+        m_data.font = skin_setting_data.font;
+
+        SetDlgItemText(IDC_FONT_NAME_EDIT, m_data.font.name);
+        SetDlgItemText(IDC_FONT_SIZE_EDIT, std::to_wstring(m_data.font.size).c_str());
+        CheckDlgButton(IDC_SPECIFY_EACH_ITEM_COLOR_CHECK, m_data.specify_each_item_color);
+        DrawStaticColor();
+    }
+}
+
+
+void CMainWndSettingsDlg::OnEnChangeFontSizeEdit()
+{
+    m_data.font.size = m_font_size_edit.GetValue();
 }

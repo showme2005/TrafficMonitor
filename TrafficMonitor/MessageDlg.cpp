@@ -10,11 +10,12 @@
 // CMessageDlg 对话框
 
 #define MESSAGE_DLG_ICON_SIZE (theApp.DPI(32))
+#define MESSAGE_DLG_ICON_VERTIAL_MARGIN (theApp.DPI(12))
 
-IMPLEMENT_DYNAMIC(CMessageDlg, CDialog)
+IMPLEMENT_DYNAMIC(CMessageDlg, CBaseDialog)
 
 CMessageDlg::CMessageDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(IDD_MESSAGE_DIALOG, pParent)
+	: CBaseDialog(IDD_MESSAGE_DIALOG, pParent)
 {
 
 }
@@ -49,27 +50,36 @@ void CMessageDlg::SetMessageIcon(HICON hIcon)
     m_icon = hIcon;
 }
 
-void CMessageDlg::SetInfoStaticSize(int cx)
+void CMessageDlg::SetStandarnMessageIcon(StandardIcon standard_icon)
 {
-    if (m_icon != NULL && m_info_static.GetSafeHwnd() != NULL)
-    {
-        CRect rc_info{ m_rc_info };
-        rc_info.left = m_rc_info.left + MESSAGE_DLG_ICON_SIZE + theApp.DPI(8);
-        if (cx > 0)
-            rc_info.right = cx;
-        m_info_static.MoveWindow(rc_info);
-    }
+	HICON hIcon;
+	PCWSTR icon{};
+	switch (standard_icon)
+	{
+	case SI_INFORMATION:
+		icon = IDI_INFORMATION;
+		break;
+	case SI_WARNING:
+		icon = IDI_WARNING;
+		break;
+	case SI_ERROR:
+		icon = IDI_ERROR;
+		break;
+	}
+	HRESULT hr = LoadIconWithScaleDown(NULL, icon, theApp.DPI(32), theApp.DPI(32), &hIcon);
+	if (SUCCEEDED(hr))
+		SetMessageIcon(hIcon);
 }
 
 void CMessageDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CBaseDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_HELP_EDIT, m_message_edit);
 	DDX_Control(pDX, IDC_INFO_STATIC, m_info_static);
 }
 
 
-BEGIN_MESSAGE_MAP(CMessageDlg, CDialog)
+BEGIN_MESSAGE_MAP(CMessageDlg, CBaseDialog)
 	ON_WM_GETMINMAXINFO()
 	//ON_NOTIFY(NM_CLICK, IDC_SYSLINK1, &CMessageDlg::OnNMClickSyslink1)
     ON_WM_PAINT()
@@ -82,7 +92,7 @@ END_MESSAGE_MAP()
 
 BOOL CMessageDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CBaseDialog::OnInitDialog();
 
 	// TODO:  在此添加额外的初始化
 
@@ -108,16 +118,29 @@ BOOL CMessageDlg::OnInitDialog()
     //设置图标的位置
     if (m_icon != NULL)
     {
-        CRect rc_edit;
-        m_message_edit.GetWindowRect(rc_edit);
-        ScreenToClient(rc_edit);
-        m_icon_pos.x = rc_edit.left;
-        m_icon_pos.y = (rc_edit.top - MESSAGE_DLG_ICON_SIZE) / 2;
+		CRect rc_info = GetControlRect(&m_info_static);
+		//设置Static控件水平位置，为图标腾出空间
+		rc_info.left = rc_info.left + MESSAGE_DLG_ICON_SIZE + theApp.DPI(8);
+		//设置Static控件的垂直位置
+		rc_info.MoveToY(rc_info.top + MESSAGE_DLG_ICON_VERTIAL_MARGIN);
+		m_info_static.MoveWindow(rc_info);
 
-        m_info_static.GetWindowRect(m_rc_info);
-        ScreenToClient(m_rc_info);
-        SetInfoStaticSize(0);
+		CRect rc_edit = GetControlRect(&m_message_edit);
+		rc_edit.top += (MESSAGE_DLG_ICON_VERTIAL_MARGIN * 2);
+		m_icon_pos.x = rc_edit.left;
+		m_icon_pos.y = (rc_edit.top - MESSAGE_DLG_ICON_SIZE) / 2;
+		m_message_edit.MoveWindow(rc_edit);
     }
+
+	//没有图标，且消息标题为空时，隐藏Static控件
+	if (m_icon == NULL && m_info.IsEmpty())
+	{
+		CRect rc_info = GetControlRect(&m_info_static);
+		CRect rc_edit = GetControlRect(&m_message_edit);
+		rc_edit.top = rc_info.top;
+		m_message_edit.MoveWindow(rc_edit);
+		m_info_static.ShowWindow(SW_HIDE);
+	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE
@@ -131,7 +154,7 @@ void CMessageDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 	lpMMI->ptMinTrackSize.x = m_min_size.cx;		//设置最小宽度
 	lpMMI->ptMinTrackSize.y = m_min_size.cy;		//设置最小高度
 
-	CDialog::OnGetMinMaxInfo(lpMMI);
+	CBaseDialog::OnGetMinMaxInfo(lpMMI);
 }
 
 
@@ -149,7 +172,7 @@ void CMessageDlg::OnPaint()
 {
     CPaintDC dc(this); // device context for painting
                        // TODO: 在此处添加消息处理程序代码
-                       // 不为绘图消息调用 CDialog::OnPaint()
+                       // 不为绘图消息调用 CBaseDialog::OnPaint()
 
     CDrawCommon draw;
     draw.Create(&dc, this);
@@ -159,8 +182,23 @@ void CMessageDlg::OnPaint()
 
 void CMessageDlg::OnSize(UINT nType, int cx, int cy)
 {
-    CDialog::OnSize(nType, cx, cy);
+    CBaseDialog::OnSize(nType, cx, cy);
 
-    // TODO: 在此处添加消息处理程序代码
-    SetInfoStaticSize(cx);
+	if (m_info_static.GetSafeHwnd() != NULL && m_icon != NULL)
+	{
+		CRect rc_info = GetControlRect(&m_info_static);
+		rc_info.right = cx;
+		m_info_static.MoveWindow(rc_info);
+	}
+	if (m_message_edit.GetSafeHwnd() != NULL)
+	{
+		CRect rc_edit = GetControlRect(&m_message_edit);
+		//设置Edit控件的垂直位置
+		CRect rc_ok = GetControlRect(IDOK);
+		if (!rc_ok.IsRectEmpty())
+		{
+			rc_edit.bottom = rc_ok.top - theApp.DPI(6);
+			m_message_edit.MoveWindow(rc_edit);
+		}
+	}
 }

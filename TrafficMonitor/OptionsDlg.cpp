@@ -23,7 +23,7 @@ COptionsDlg::~COptionsDlg()
 
 CString COptionsDlg::GetDialogName() const
 {
-    return _T("OptionsDlg");
+    return OPTION_DLG_NAME;
 }
 
 void COptionsDlg::DoDataExchange(CDataExchange* pDX)
@@ -35,6 +35,7 @@ void COptionsDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(COptionsDlg, CBaseDialog)
     ON_WM_SIZE()
+    ON_BN_CLICKED(IDC_APPLY_BUTTON, &COptionsDlg::OnBnClickedApplyButton)
 END_MESSAGE_MAP()
 
 
@@ -46,9 +47,6 @@ BOOL COptionsDlg::OnInitDialog()
     CBaseDialog::OnInitDialog();
 
     // TODO:  在此添加额外的初始化
-    theApp.m_option_dlg = m_hWnd;
-
-    SetWindowText(CCommon::LoadText(IDS_TITLE_OPTION));
     SetIcon(theApp.GetMenuIcon(IDI_SETTINGS), FALSE);       // 设置小图标
 
     //创建子对话框
@@ -73,6 +71,18 @@ BOOL COptionsDlg::OnInitDialog()
     m_tab.AddWindow(&m_tab1_dlg, CCommon::LoadText(IDS_MAIN_WINDOW_SETTINGS));
     m_tab.AddWindow(&m_tab2_dlg, CCommon::LoadText(IDS_TASKBAR_WINDOW_SETTINGS));
     m_tab.AddWindow(&m_tab3_dlg, CCommon::LoadText(IDS_GENERAL_SETTINGS));
+
+    //为每个标签添加图标
+    CImageList ImageList;
+    ImageList.Create(theApp.DPI(16), theApp.DPI(16), ILC_COLOR32 | ILC_MASK, 2, 2);
+    ImageList.Add(theApp.GetMenuIcon(IDI_MAIN_WINDOW));
+    ImageList.Add(theApp.GetMenuIcon(IDI_TASKBAR_WINDOW));
+    ImageList.Add(theApp.GetMenuIcon(IDI_SETTINGS));
+    m_tab.SetImageList(&ImageList);
+    ImageList.Detach();
+
+    m_tab.SetItemSize(CSize(theApp.DPI(60), theApp.DPI(24)));
+    m_tab.AdjustTabWindowSize();
 
     //为每个子窗口设置滚动信息
     for (size_t i = 0; i < m_tab_vect.size(); i++)
@@ -111,7 +121,6 @@ void COptionsDlg::OnSize(UINT nType, int cx, int cy)
         //为每个子窗口设置滚动信息
         for (size_t i = 0; i < m_tab_vect.size(); i++)
         {
-            m_tab_vect[i]->ResetScroll();
             m_tab_vect[i]->SetScrollbarInfo(m_tab.m_tab_rect.Height(), m_tab_height[i]);
         }
     }
@@ -124,4 +133,15 @@ void COptionsDlg::OnCancel()
     m_tab3_dlg.OnCancel();
 
     CBaseDialog::OnCancel();
+}
+
+
+void COptionsDlg::OnBnClickedApplyButton()
+{
+    m_tab2_dlg.SaveColorSettingToDefaultStyle();
+    ::SendMessage(theApp.m_pMainWnd->GetSafeHwnd(), WM_SETTINGS_APPLIED, (WPARAM)this, 0);
+    for (size_t i = 0; i < m_tab_vect.size(); i++)
+    {
+        m_tab_vect[i]->OnSettingsApplied();
+    }
 }

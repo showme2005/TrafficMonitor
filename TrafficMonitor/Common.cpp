@@ -38,6 +38,150 @@ string CCommon::UnicodeToStr(const wchar_t* wstr, bool utf8)
     return result;
 }
 
+wstring CCommon::AsciiToUnicode(const string& str)
+{
+    std::wstring result;
+    result.resize(str.size());
+    for (size_t i{}; i < str.size(); i++)
+        result[i] = str[i];
+    return result;
+}
+
+string CCommon::AsciiToStr(const std::wstring& wstr)
+{
+    std::string result;
+    result.resize(wstr.size());
+    for (size_t i{}; i < wstr.size(); i++)
+        result[i] = static_cast<char>(wstr[i]);
+    return result;
+}
+
+template<class T>
+static void _StringNormalize(T& str)
+{
+    if (str.empty()) return;
+
+    int size = static_cast<int>(str.size());  //字符串的长度
+    if (size < 0) return;
+    int index1 = 0;     //字符串中第1个不是空格或控制字符的位置
+    int index2 = size - 1;  //字符串中最后一个不是空格或控制字符的位置
+    while (index1 < size && str[index1] >= 0 && str[index1] <= 32)
+        index1++;
+    while (index2 >= 0 && str[index2] >= 0 && str[index2] <= 32)
+        index2--;
+    if (index1 > index2)    //如果index1 > index2，说明字符串全是空格或控制字符
+        str.clear();
+    else if (index1 == 0 && index2 == size - 1) //如果index1和index2的值分别为0和size - 1，说明字符串前后没有空格或控制字符，直接返回
+        return;
+    else
+        str = str.substr(index1, index2 - index1 + 1);
+}
+
+void CCommon::StringNormalize(std::string& str)
+{
+    _StringNormalize(str);
+}
+
+void CCommon::StringNormalize(std::wstring& str)
+{
+    _StringNormalize(str);
+}
+
+template<class T>
+static void _StringSplit(const T& str, wchar_t div_ch, vector<T>& results, bool skip_empty = true, bool trim = true)
+{
+    results.clear();
+    size_t split_index = -1;
+    size_t last_split_index = -1;
+    while (true)
+    {
+        split_index = str.find(div_ch, split_index + 1);
+        T split_str = str.substr(last_split_index + 1, split_index - last_split_index - 1);
+        if (trim)
+            _StringNormalize(split_str);
+        if (!split_str.empty() || !skip_empty)
+            results.push_back(split_str);
+        if (split_index == wstring::npos)
+            break;
+        last_split_index = split_index;
+    }
+}
+
+void CCommon::StringSplit(const std::string& str, char div_ch, vector<std::string>& results, bool skip_empty, bool trim)
+{
+    _StringSplit(str, div_ch, results, skip_empty, trim);
+}
+
+void CCommon::StringSplit(const std::wstring& str, wchar_t div_ch, vector<std::wstring>& results, bool skip_empty, bool trim)
+{
+    _StringSplit(str, div_ch, results, skip_empty, trim);
+}
+
+template<class T>
+static void _StringSplit(const T& str, const T& div_str, vector<T>& results, bool skip_empty = true, bool trim = true)
+{
+    results.clear();
+    size_t split_index = 0 - div_str.size();
+    size_t last_split_index = 0 - div_str.size();
+    while (true)
+    {
+        split_index = str.find(div_str, split_index + div_str.size());
+        T split_str = str.substr(last_split_index + div_str.size(), split_index - last_split_index - div_str.size());
+        if (trim)
+            _StringNormalize(split_str);
+        if (!split_str.empty() || !skip_empty)
+            results.push_back(split_str);
+        if (split_index == wstring::npos)
+            break;
+        last_split_index = split_index;
+    }
+}
+
+void CCommon::StringSplit(const std::string& str, const std::string& div_str, vector<std::string>& results, bool skip_empty, bool trim)
+{
+    _StringSplit(str, div_str, results, skip_empty, trim);
+}
+
+void CCommon::StringSplit(const std::wstring& str, const std::wstring& div_str, vector<std::wstring>& results, bool skip_empty, bool trim)
+{
+    _StringSplit(str, div_str, results, skip_empty, trim);
+}
+
+template<class T>
+static bool _StringTransform(T& str, bool upper)
+{
+    if (str.empty()) return false;
+    if (upper)
+    {
+        for (auto& ch : str)
+        {
+            {
+                if (ch >= 'a' && ch <= 'z')
+                    ch -= 32;
+            }
+        }
+    }
+    else
+    {
+        for (auto& ch : str)
+        {
+            if (ch >= 'A' && ch <= 'Z')
+                ch += 32;
+        }
+    }
+    return true;
+}
+
+bool CCommon::StringTransform(std::string& str, bool upper)
+{
+    return _StringTransform(str, upper);
+}
+
+bool CCommon::StringTransform(std::wstring& str, bool upper)
+{
+    return _StringTransform(str, upper);
+}
+
 bool CCommon::GetFileContent(const wchar_t* file_path, string& contents_buff, bool binary /*= true*/)
 {
     std::ifstream file{ file_path, (binary ? std::ios::binary : std::ios::in) };
@@ -231,6 +375,18 @@ CString CCommon::UsageToString(int usage, const PublicSettingData& cfg)
     return str_val;
 }
 
+CString CCommon::FreqToString(float freq, const PublicSettingData& cfg)
+{
+    CString str_val;
+    if (freq < 0)
+        str_val = _T("--");
+    else
+        str_val.Format(_T("%.2f"), freq);
+    if (cfg.separate_value_unit_with_space)
+        str_val += _T(' ');
+    str_val += _T("GHz");
+    return str_val;
+}
 //CString CCommon::KBytesToString(unsigned int kb_size)
 //{
 //  CString k_bytes_str;
@@ -409,7 +565,7 @@ void CCommon::GetFiles(const wchar_t* path, vector<wstring>& files)
     //文件信息（用Unicode保存使用_wfinddata_t，多字节字符集使用_finddata_t）
     _wfinddata_t fileinfo;
     wstring file_name;
-    if ((hFile = _wfindfirst(wstring(path).append(L"\\*").c_str(), &fileinfo)) != -1)
+    if ((hFile = _wfindfirst(path, &fileinfo)) != -1)
     {
         do
         {
@@ -422,9 +578,33 @@ void CCommon::GetFiles(const wchar_t* path, vector<wstring>& files)
     _findclose(hFile);
 }
 
+void CCommon::GetFiles(const wchar_t* path, std::function<void(const wstring&)> func)
+{
+    //文件句柄
+    intptr_t hFile = 0;
+    _wfinddata_t fileinfo;
+    wstring file_name;
+    if ((hFile = _wfindfirst(path, &fileinfo)) != -1)
+    {
+        do
+        {
+            file_name.assign(fileinfo.name);
+            if (file_name != L"." && file_name != L"..")
+                func(file_name);
+        } while (_wfindnext(hFile, &fileinfo) == 0);
+    }
+    _findclose(hFile);
+}
+
 bool CCommon::FileExist(LPCTSTR file_name)
 {
     return (PathFileExists(file_name) != 0);
+}
+
+bool CCommon::IsFolder(const wstring& path)
+{
+    DWORD dwAttrib = GetFileAttributes(path.c_str());
+    return (dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0;
 }
 
 bool CCommon::MoveAFile(LPCTSTR exist_file, LPCTSTR new_file)
@@ -463,6 +643,24 @@ SYSTEMTIME CCommon::CompareSystemTime(SYSTEMTIME a, SYSTEMTIME b)
     result.wMinute = minute;
     result.wSecond = second;
     return result;
+}
+
+ULONGLONG CCommon::GetCurrentTimeSinceEpochMilliseconds()
+{
+    FILETIME fileTime;
+    GetSystemTimeAsFileTime(&fileTime);  // 获取当前系统时间
+
+    // 将FILETIME转换为ULARGE_INTEGER以便计算
+    ULARGE_INTEGER uli;
+    uli.LowPart = fileTime.dwLowDateTime;
+    uli.HighPart = fileTime.dwHighDateTime;
+
+    // 从1601年1月1日到1970年1月1日的100纳秒间隔数
+    const ULONGLONG EPOCH_OFFSET = 116444736000000000ULL;
+
+    // 转换为从1970年1月1日开始的毫秒数
+    ULONGLONG millisecondsSince1970 = (uli.QuadPart - EPOCH_OFFSET) / 10000;
+    return millisecondsSince1970;
 }
 
 wstring CCommon::GetModuleDir()
@@ -529,12 +727,20 @@ void CCommon::DrawWindowText(CDC* pDC, CRect rect, LPCTSTR lpszString, COLORREF 
 //}
 
 
-bool CCommon::IsForegroundFullscreen()
+bool CCommon::IsForegroundFullscreen(HMONITOR hMonitor)
 {
+    if (hMonitor == NULL)
+        hMonitor = MonitorFromWindow(NULL, MONITOR_DEFAULTTOPRIMARY);
     bool bFullscreen{ false };      //用于指示前台窗口是否是全屏
-    HWND hWnd;
-    RECT rcApp;
-    RECT rcDesk;
+    HWND hWnd{};
+    RECT rcApp{};
+
+    // 获取显示器信息
+    MONITORINFOEX monitorInfo{};
+    monitorInfo.cbSize = sizeof(monitorInfo);
+    GetMonitorInfo(hMonitor, &monitorInfo);
+    RECT monitorRect = monitorInfo.rcMonitor;
+
     hWnd = GetForegroundWindow();   //获取当前正在与用户交互的前台窗口句柄
     TCHAR buff[256];
     GetClassName(hWnd, buff, 256);      //获取前台窗口的类名
@@ -542,11 +748,10 @@ bool CCommon::IsForegroundFullscreen()
     if (hWnd != GetDesktopWindow() && class_name != _T("WorkerW") && hWnd != GetShellWindow())//如果前台窗口不是桌面窗口，也不是控制台窗口
     {
         GetWindowRect(hWnd, &rcApp);    //获取前台窗口的坐标
-        GetWindowRect(GetDesktopWindow(), &rcDesk); //根据桌面窗口句柄，获取整个屏幕的坐标
-        if (rcApp.left <= rcDesk.left && //如果前台窗口的坐标完全覆盖住桌面窗口，就表示前台窗口是全屏的
-            rcApp.top <= rcDesk.top &&
-            rcApp.right >= rcDesk.right &&
-            rcApp.bottom >= rcDesk.bottom)
+        if (rcApp.left <= monitorRect.left && //如果前台窗口的坐标完全覆盖住桌面窗口，就表示前台窗口是全屏的
+            rcApp.top <= monitorRect.top &&
+            rcApp.right >= monitorRect.right &&
+            rcApp.bottom >= monitorRect.bottom)
         {
             bFullscreen = true;
         }
@@ -590,7 +795,7 @@ wstring CCommon::GetJsonValueSimple(const wstring& json_str, const wstring& name
     return result;
 }
 
-bool CCommon::GetURL(const wstring& url, wstring& result, bool utf8, const wstring& user_agent)
+bool CCommon::GetURL(const wstring& url, std::string& result, const wstring& user_agent)
 {
     bool succeed{ false };
     CInternetSession* pSession{};
@@ -609,7 +814,7 @@ bool CCommon::GetURL(const wstring& url, wstring& result, bool utf8, const wstri
             {
                 content += data;
             }
-            result = StrToUnicode((const char*)content.GetString(), utf8);
+            result = std::string((const char*)content.GetString());
             succeed = true;
         }
         pfile->Close();
@@ -636,6 +841,17 @@ bool CCommon::GetURL(const wstring& url, wstring& result, bool utf8, const wstri
         SAFE_DELETE(pSession);
     }
     SAFE_DELETE(pSession);
+    return succeed;
+}
+
+bool CCommon::GetURL(const wstring& url, wstring& result, bool utf8, const wstring& user_agent)
+{
+    std::string str_result;
+    bool succeed = GetURL(url, str_result, user_agent);
+    if (succeed)
+    {
+        result = CCommon::StrToUnicode(str_result.c_str(), utf8);
+    }
     return succeed;
 }
 
@@ -713,19 +929,17 @@ void CCommon::SetRect(CRect& rect, int x, int y, int width, int height)
     rect.bottom = y + height;
 }
 
-CString CCommon::LoadText(UINT id, LPCTSTR back_str)
+CString CCommon::LoadText(const wchar_t* id, LPCTSTR back_str)
 {
-    CString str;
-    str.LoadString(id);
+    CString str = theApp.m_str_table.LoadText(id).c_str();
     if (back_str != nullptr)
         str += back_str;
     return str;
 }
 
-CString CCommon::LoadText(LPCTSTR front_str, UINT id, LPCTSTR back_str)
+CString CCommon::LoadText(LPCTSTR front_str, const wchar_t* id, LPCTSTR back_str)
 {
-    CString str;
-    str.LoadString(id);
+    CString str = theApp.m_str_table.LoadText(id).c_str();
     if (back_str != nullptr)
         str += back_str;
     if (front_str != nullptr)
@@ -749,10 +963,9 @@ CString CCommon::StringFormat(LPCTSTR format_str, const std::initializer_list<CV
     return str_rtn;
 }
 
-CString CCommon::LoadTextFormat(UINT id, const std::initializer_list<CVariant>& paras)
+CString CCommon::LoadTextFormat(const wchar_t* id, const std::initializer_list<CVariant>& paras)
 {
-    CString str;
-    str.LoadString(id);
+    CString str = theApp.m_str_table.LoadText(id).c_str();
     return StringFormat(str.GetString(), paras);
 }
 
@@ -841,15 +1054,76 @@ void CCommon::WStringCopy(wchar_t* str_dest, int dest_size, const wchar_t* str_s
         str_dest[dest_size - 1] = L'\0';
 }
 
-void CCommon::SetThreadLanguage(Language language)
+bool CCommon::StringReplace(wstring& str, const wstring& str_old, const wstring& str_new)
 {
-    switch (language)
+    if (str.empty())
+        return false;
+    bool replaced{ false };
+    size_t pos = 0;
+    while ((pos = str.find(str_old, pos)) != std::wstring::npos)
     {
-    case Language::ENGLISH: SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US)); break;
-    case Language::SIMPLIFIED_CHINESE: SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED)); break;
-    case Language::TRADITIONAL_CHINESE: SetThreadUILanguage(MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_TRADITIONAL)); break;
-    default: break;
+        str.replace(pos, str_old.length(), str_new);
+        replaced = true;
+        pos += str_new.length();    // 前进到替换后的字符串末尾
     }
+    return replaced;
+}
+
+template<class T>
+static double _StringSimilarDegree_LD(const T& srcString, const T& matchString)
+{
+    int n = static_cast<int>(srcString.size());
+    int m = static_cast<int>(matchString.size());
+    //int[, ] d = new int[n + 1, m + 1]; // matrix
+    vector<vector<int>> d(n + 1, vector<int>(m + 1));
+    int cost; // cost
+    // Step 1（如果其中一个字符串长度为0，则相似度为1）？
+    //if (n == 0) return (double)m / max(srcString.size(), matchString.size());
+    //if (m == 0) return (double)n / max(srcString.size(), matchString.size());
+    if (n == 0 || m == 0) return 0.0;   //如果其中一个字符串长度为0，则相似度为0
+    // Step 2
+    for (int i = 0; i <= n; i++)
+    {
+        d[i][0] = i;
+    }
+    for (int j = 0; j <= m; j++)
+    {
+        d[0][j] = j;
+    }
+    // Step 3
+    for (int i = 1; i <= n; i++)
+    {
+        //Step 4
+        for (int j = 1; j <= m; j++)
+        {
+            // Step 5
+            cost = (matchString.substr(j - 1, 1) == srcString.substr(i - 1, 1) ? 0 : 1);
+            // Step 6
+            d[i][j] = min(min(d[i - 1][j] + 1, d[i][j - 1] + 1), d[i - 1][j - 1] + cost);
+        }
+    }
+
+    // Step 7
+    double ds = 1 - (double)d[n][m] / max(srcString.size(), matchString.size());
+
+    return ds;
+}
+
+
+double CCommon::StringSimilarDegree_LD(const std::string& srcString, const std::string& matchString)
+{
+    return _StringSimilarDegree_LD(srcString, matchString);
+}
+
+double CCommon::StringSimilarDegree_LD(const std::wstring& srcString, const std::wstring& matchString)
+{
+    return _StringSimilarDegree_LD(srcString, matchString);
+}
+
+void CCommon::SetThreadLanguage(WORD language)
+{
+    if (language != 0)
+        SetThreadUILanguage(language);
 }
 
 void CCommon::SetColorMode(ColorMode mode)
@@ -857,8 +1131,17 @@ void CCommon::SetColorMode(ColorMode mode)
     switch (mode)
     {
     case ColorMode::Default:
-        CTrafficMonitorApp::self->m_taskbar_data.dft_back_color = 0;
-        CTrafficMonitorApp::self->m_taskbar_data.dft_transparent_color = 0;
+        //Win8/8.1下背景色和透明色不使用纯黑色
+        if (theApp.m_win_version.IsWindows8Or8point1())
+        {
+            CTrafficMonitorApp::self->m_taskbar_data.dft_back_color = RGB(0, 0, 1);
+            CTrafficMonitorApp::self->m_taskbar_data.dft_transparent_color = RGB(0, 0, 1);
+        }
+        else
+        {
+            CTrafficMonitorApp::self->m_taskbar_data.dft_back_color = 0;
+            CTrafficMonitorApp::self->m_taskbar_data.dft_transparent_color = 0;
+        }
         CTrafficMonitorApp::self->m_taskbar_data.dft_status_bar_color = 0x005A5A5A;
         CTrafficMonitorApp::self->m_taskbar_data.dft_text_colors = 0x00ffffffU;
         CTrafficMonitorApp::self->m_cfg_data.m_dft_notify_icon = 0;
@@ -912,16 +1195,21 @@ CString CCommon::GetTextResource(UINT id, int code_type)
     HRSRC hRes = FindResource(NULL, MAKEINTRESOURCE(id), _T("TEXT"));
     if (hRes != NULL)
     {
+        DWORD resSize = SizeofResource(NULL, hRes);  // 获取资源的大小
         HGLOBAL hglobal = LoadResource(NULL, hRes);
         if (hglobal != NULL)
         {
+            LPVOID pResourceData = LockResource(hglobal);  // 获取资源数据的指针
             if (code_type == 2)
             {
-                res_str = (const wchar_t*)hglobal;
+                // 资源是宽字符字符串
+                res_str = CString((const wchar_t*)pResourceData, resSize / sizeof(wchar_t));
             }
             else
             {
-                res_str = CCommon::StrToUnicode((const char*)hglobal, (code_type != 0)).c_str();
+                // 资源是窄字符字符串
+                std::string strData((const char*)pResourceData, resSize);
+                res_str = CCommon::StrToUnicode(strData.c_str(), (code_type != 0)).c_str();
             }
         }
     }
@@ -954,6 +1242,48 @@ int CCommon::GetMenuItemPosition(CMenu* pMenu, UINT id)
         }
     }
     return pos;
+}
+
+// 递归遍历菜单项并处理多语言翻译
+static void TranslateMenuItems(CMenu& menu)
+{
+    // 遍历菜单项
+    for (int i = 0; i < menu.GetMenuItemCount(); ++i)
+    {
+        UINT menuItemID = menu.GetMenuItemID(i);
+        CString menuText;
+        menu.GetMenuString(i, menuText, MF_BYPOSITION);
+
+        // 检查菜单项文本是否以TXT_开头
+        if (menuText.Left(4) == _T("TXT_"))
+        {
+            // 获取翻译后的文本
+            std::wstring key(menuText);
+            const std::wstring& translatedText = theApp.m_str_table.LoadMenuText(key);
+
+            // 更新菜单项文本
+            menu.ModifyMenu(i, MF_BYPOSITION | MF_STRING, menuItemID, translatedText.c_str());
+        }
+
+        if (menuItemID == -1)
+        {
+            // 这是一个弹出菜单（子菜单），递归处理
+            CMenu* pSubMenu = menu.GetSubMenu(i);
+            if (pSubMenu)
+            {
+                TranslateMenuItems(*pSubMenu); // 递归调用
+            }
+        }
+    }
+}
+
+void CCommon::LoadMenuResource(CMenu& menu, UINT res_id)
+{
+    // 加载菜单资源
+    menu.LoadMenu(res_id);
+
+    // 处理菜单项翻译
+    TranslateMenuItems(menu);
 }
 
 bool CCommon::IsColorSimilar(COLORREF color1, COLORREF color2)
@@ -993,4 +1323,46 @@ void CCommon::SetNumberBit(unsigned int& num, int bit, bool value)
 bool CCommon::GetNumberBit(unsigned int num, int bit)
 {
     return (num & (1 << bit)) != 0;
+}
+
+COLORREF CCommon::GetWindowsThemeColor()
+{
+    DWORD crColorization;
+    BOOL fOpaqueBlend;
+    COLORREF theme_color{};
+    HRESULT result = DwmGetColorizationColor(&crColorization, &fOpaqueBlend);
+    if (result == S_OK)
+    {
+        BYTE r, g, b;
+        r = (crColorization >> 16) % 256;
+        g = (crColorization >> 8) % 256;
+        b = crColorization % 256;
+        theme_color = RGB(r, g, b);
+    }
+    return theme_color;
+}
+
+CString CCommon::GetErrorMessage(DWORD error_code)
+{
+    CString error_msg;
+    if (error_code != 0)
+    {
+        LPVOID lpMsgBuf = nullptr;
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER |
+            FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL,
+            error_code,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR)&lpMsgBuf,
+            0,
+            NULL);
+
+        if (lpMsgBuf != nullptr)
+            error_msg = (LPCTSTR)lpMsgBuf;
+
+        LocalFree(lpMsgBuf);
+    }
+    return error_msg;
 }

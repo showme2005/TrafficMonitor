@@ -30,9 +30,6 @@
     <Filter Include="源文件和头文件\stdafx">
       <UniqueIdentifier>{ee6e7f72-a080-4020-92ff-432b8dcdad2f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件和头文件\对话框类\DonateDlg">
-      <UniqueIdentifier>{9085ed32-5818-45d1-836b-bae3c63952d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件和头文件\对话框类\选项设置对话框">
       <UniqueIdentifier>{98909116-8f3b-47d0-8e3f-ef90b29a2acc}</UniqueIdentifier>
     </Filter>
@@ -115,9 +112,6 @@
     <Filter Include="源文件和头文件\公共的类\UpdateHelper">
       <UniqueIdentifier>{2b0e9f5d-dbce-4ba7-a158-7d9b705fcc02}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件和头文件\公共的类\CPUUsage">
-      <UniqueIdentifier>{926ebc77-cc7f-431a-896d-3a4019b41991}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件和头文件\对话框类\BaseDialog">
       <UniqueIdentifier>{6f91f987-8834-4e89-b14e-d3ae15040848}</UniqueIdentifier>
     </Filter>
@@ -166,14 +160,106 @@
     <Filter Include="源文件和头文件\公共的类\HighResolutionTimer">
       <UniqueIdentifier>{c164ccd7-eb7c-465c-8828-d7a38eab573c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件和头文件\公共的类\tinyxml2">
+      <UniqueIdentifier>{24b802e1-bc90-4f4c-8862-0ba6310f05f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\TaskbarItemOrderHelper">
+      <UniqueIdentifier>{22cfb8c5-2d79-4f91-add4-fb393e20475e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\对话框类\选项设置对话框\SetItemOrderDlg">
+      <UniqueIdentifier>{bc164584-be21-4a91-9af5-772d61ed9529}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\PluginManager">
+      <UniqueIdentifier>{f7dd3288-085a-4de2-9f83-d8ba2f3eff47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\对话框类\PluginManagerDlg">
+      <UniqueIdentifier>{dbacfb68-1e03-4bcb-a08b-e87ba558985f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\CommonData">
+      <UniqueIdentifier>{554c1c22-3662-416f-9a24-ad76bfb5eecd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\对话框类\AppAlreadyRuningDlg">
+      <UniqueIdentifier>{cecf73f6-6479-4ce2-aefe-879c9363ab24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\对话框类\选项设置对话框\SelectConnectionsDlg">
+      <UniqueIdentifier>{8a6deeaa-91ab-4c85-b293-ab1844f3ef82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\WindowsSettingHelper">
+      <UniqueIdentifier>{46dd548a-c66e-4a37-8767-6f9767125287}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\DllFunctions">
+      <UniqueIdentifier>{a106d99c-80bb-4625-a64e-9d1ea24cad7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\Nullable">
+      <UniqueIdentifier>{f51d70bc-ec1d-45e9-9c57-777da2b6e51d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\DrawTextManager">
+      <UniqueIdentifier>{af0ec00c-027f-4003-890e-7122d0b8df0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\HResultException">
+      <UniqueIdentifier>{48a72bdd-aca1-4367-9907-4bbb92dea212}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\Image2DEffect">
+      <UniqueIdentifier>{b6684af7-c43e-42f7-9094-9315af53951d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\RenderAPISupport">
+      <UniqueIdentifier>{9e68f549-1373-437f-89f9-0b976150aa99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\RenderAPISupport\D2D1Support">
+      <UniqueIdentifier>{9b93962c-26e9-41d5-a5e3-7dfd90bc5e96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\RenderAPISupport\D3D10Support1">
+      <UniqueIdentifier>{f6a75faf-64b5-4f3b-a382-7dfd4a17d61c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\RenderAPISupport\DCompositionSupport">
+      <UniqueIdentifier>{9d71c24a-4df2-4df5-a536-741d890ada1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\RenderAPISupport\DxgiSupport2">
+      <UniqueIdentifier>{059ab3fb-f8b3-4cae-b5d3-72bd857e5197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\WindowsWebExperienceDetector">
+      <UniqueIdentifier>{4f233c31-4fef-48c1-8176-845ddd21debb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\FileDialogEx">
+      <UniqueIdentifier>{0745b192-f366-4a31-b238-d372d5b62492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件\icons">
+      <UniqueIdentifier>{830bdf63-7703-45a3-9e5d-a87cc2f2bb70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件\bitmaps">
+      <UniqueIdentifier>{322d1b74-5d71-43bd-ae50-b33f24b1b31c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\对话框类\选项设置对话框\Win11TaskbarSettingDlg">
+      <UniqueIdentifier>{d048fa7a-2509-4713-9df3-c537c4b35018}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件\language">
+      <UniqueIdentifier>{f1f6139c-f164-49f7-86e8-0e5ac6bef657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\StrTable">
+      <UniqueIdentifier>{357eeb5d-af51-4701-83c9-e13a17c7f771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\SkinManager">
+      <UniqueIdentifier>{28301057-fd34-4d04-a86a-0520143fdc14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\PluginUpdateHelper">
+      <UniqueIdentifier>{4d4d9bb2-17eb-4f13-978b-c204a1b227db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\DisplayItem">
+      <UniqueIdentifier>{4785624f-2ca9-4f92-8cfc-c7a7c3bfba74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件和头文件\公共的类\PdhHardwareQuery">
+      <UniqueIdentifier>{649b4ef9-4692-43a6-9365-c4445ec48c22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
     <Text Include="res\Acknowledgement.txt">
       <Filter>资源文件</Filter>
     </Text>
-    <Text Include="res\Acknowledgement_en.txt" />
     <Text Include="compile_time.txt" />
+    <Text Include="res\Acknowledgement_en.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -196,9 +282,6 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>源文件和头文件\stdafx</Filter>
-    </ClInclude>
-    <ClInclude Include="DonateDlg.h">
-      <Filter>源文件和头文件\对话框类\DonateDlg</Filter>
     </ClInclude>
     <ClInclude Include="MainWndSettingsDlg.h">
       <Filter>源文件和头文件\对话框类\选项设置对话框</Filter>
@@ -226,9 +309,6 @@
     </ClInclude>
     <ClInclude Include="PictureStatic.h">
       <Filter>源文件和头文件\派生的控件类\PictureStatic</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonData.h">
-      <Filter>源文件和头文件\头文件</Filter>
     </ClInclude>
     <ClInclude Include="CSkinPreviewView.h">
       <Filter>源文件和头文件\对话框类\SkinDlg</Filter>
@@ -302,9 +382,6 @@
     <ClInclude Include="UpdateHelper.h">
       <Filter>源文件和头文件\公共的类\UpdateHelper</Filter>
     </ClInclude>
-    <ClInclude Include="CPUUsage.h">
-      <Filter>源文件和头文件\公共的类\CPUUsage</Filter>
-    </ClInclude>
     <ClInclude Include="BaseDialog.h">
       <Filter>源文件和头文件\对话框类\BaseDialog</Filter>
     </ClInclude>
@@ -353,6 +430,138 @@
     <ClInclude Include="HighResolutionTimer.h">
       <Filter>源文件和头文件\公共的类\HighResolutionTimer</Filter>
     </ClInclude>
+    <ClInclude Include="tinyxml2\tinyxml2.h">
+      <Filter>源文件和头文件\公共的类\tinyxml2</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskbarItemOrderHelper.h">
+      <Filter>源文件和头文件\公共的类\TaskbarItemOrderHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="SetItemOrderDlg.h">
+      <Filter>源文件和头文件\对话框类\选项设置对话框\SetItemOrderDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\PluginInterface.h">
+      <Filter>源文件和头文件\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginManager.h">
+      <Filter>源文件和头文件\公共的类\PluginManager</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginManagerDlg.h">
+      <Filter>源文件和头文件\对话框类\PluginManagerDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginInfoDlg.h">
+      <Filter>源文件和头文件\对话框类\PluginManagerDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonData.h">
+      <Filter>源文件和头文件\公共的类\CommonData</Filter>
+    </ClInclude>
+    <ClInclude Include="AppAlreadyRuningDlg.h">
+      <Filter>源文件和头文件\对话框类\AppAlreadyRuningDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectConnectionsDlg.h">
+      <Filter>源文件和头文件\对话框类\选项设置对话框\SelectConnectionsDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsSettingHelper.h">
+      <Filter>源文件和头文件\公共的类\WindowsSettingHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="DllFunctions.h">
+      <Filter>源文件和头文件\公共的类\DllFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="D2D1Support.h">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\D2D1Support</Filter>
+    </ClInclude>
+    <ClInclude Include="Nullable.hpp">
+      <Filter>源文件和头文件\公共的类\Nullable</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawTextManager.h">
+      <Filter>源文件和头文件\公共的类\DrawTextManager</Filter>
+    </ClInclude>
+    <ClInclude Include="HResultException.h">
+      <Filter>源文件和头文件\公共的类\HResultException</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D10Support1.h">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\D3D10Support1</Filter>
+    </ClInclude>
+    <ClInclude Include="Image2DEffect.h">
+      <Filter>源文件和头文件\公共的类\Image2DEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="IDrawCommon.h">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawCommonFactory.h">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderAPISupport.h">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport</Filter>
+    </ClInclude>
+    <ClInclude Include="DCompositionSupport.h">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\DCompositionSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="Dxgi1Support2.h">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\DxgiSupport2</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskBarDlgDrawCommon.h">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="SupportedRenderEnums.h">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsWebExperienceDetector.h">
+      <Filter>源文件和头文件\公共的类\WindowsWebExperienceDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinAutoAdaptSettingDlg.h">
+      <Filter>源文件和头文件\对话框类\SkinDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="Win11TaskbarSettingDlg.h">
+      <Filter>源文件和头文件\对话框类\选项设置对话框\Win11TaskbarSettingDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="FileDialogEx.h">
+      <Filter>源文件和头文件\公共的类\FileDialogEx</Filter>
+    </ClInclude>
+    <ClInclude Include="StrTable.h">
+      <Filter>源文件和头文件\公共的类\StrTable</Filter>
+    </ClInclude>
+    <ClInclude Include="language.h">
+      <Filter>源文件和头文件\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassicalTaskbarDlg.h">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="Win11TaskbarDlg.h">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskbarHelper.h">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinManager.h">
+      <Filter>源文件和头文件\公共的类\SkinManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingsHelper.h">
+      <Filter>源文件和头文件\公共的类\IniHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="PluginUpdateHelper.h">
+      <Filter>源文件和头文件\公共的类\PluginUpdateHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="DisplayItem.h">
+      <Filter>源文件和头文件\公共的类\DisplayItem</Filter>
+    </ClInclude>
+    <ClInclude Include="WineTaskbarDlg.h">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClInclude>
+    <ClInclude Include="PdhHardwareQuery\CPUUsage.h">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClInclude>
+    <ClInclude Include="PdhHardwareQuery\CpuFreq.h">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClInclude>
+    <ClInclude Include="PdhHardwareQuery\GpuUsage.h">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClInclude>
+    <ClInclude Include="PdhHardwareQuery\PdhQuery.h">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClInclude>
+    <ClInclude Include="PdhHardwareQuery\DiskUsage.h">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StaticEx.cpp">
@@ -369,9 +578,6 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件和头文件\stdafx</Filter>
-    </ClCompile>
-    <ClCompile Include="DonateDlg.cpp">
-      <Filter>源文件和头文件\对话框类\DonateDlg</Filter>
     </ClCompile>
     <ClCompile Include="GeneralSettingsDlg.cpp">
       <Filter>源文件和头文件\对话框类\选项设置对话框</Filter>
@@ -472,9 +678,6 @@
     <ClCompile Include="UpdateHelper.cpp">
       <Filter>源文件和头文件\公共的类\UpdateHelper</Filter>
     </ClCompile>
-    <ClCompile Include="CPUUsage.cpp">
-      <Filter>源文件和头文件\公共的类\CPUUsage</Filter>
-    </ClCompile>
     <ClCompile Include="BaseDialog.cpp">
       <Filter>源文件和头文件\对话框类\BaseDialog</Filter>
     </ClCompile>
@@ -520,6 +723,123 @@
     <ClCompile Include="ComboBox2.cpp">
       <Filter>源文件和头文件\派生的控件类\CComboBox2</Filter>
     </ClCompile>
+    <ClCompile Include="tinyxml2\tinyxml2.cpp">
+      <Filter>源文件和头文件\公共的类\tinyxml2</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskbarItemOrderHelper.cpp">
+      <Filter>源文件和头文件\公共的类\TaskbarItemOrderHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="SetItemOrderDlg.cpp">
+      <Filter>源文件和头文件\对话框类\选项设置对话框\SetItemOrderDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginManager.cpp">
+      <Filter>源文件和头文件\公共的类\PluginManager</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginManagerDlg.cpp">
+      <Filter>源文件和头文件\对话框类\PluginManagerDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginInfoDlg.cpp">
+      <Filter>源文件和头文件\对话框类\PluginManagerDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="CommonData.cpp">
+      <Filter>源文件和头文件\公共的类\CommonData</Filter>
+    </ClCompile>
+    <ClCompile Include="AppAlreadyRuningDlg.cpp">
+      <Filter>源文件和头文件\对话框类\AppAlreadyRuningDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectConnectionsDlg.cpp">
+      <Filter>源文件和头文件\对话框类\选项设置对话框\SelectConnectionsDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsSettingHelper.cpp">
+      <Filter>源文件和头文件\公共的类\WindowsSettingHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="DllFunctions.cpp">
+      <Filter>源文件和头文件\公共的类\DllFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="D2D1Support.cpp">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\D2D1Support</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawTextManager.cpp">
+      <Filter>源文件和头文件\公共的类\DrawTextManager</Filter>
+    </ClCompile>
+    <ClCompile Include="HResultException.cpp">
+      <Filter>源文件和头文件\公共的类\HResultException</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D10Support1.cpp">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\D3D10Support1</Filter>
+    </ClCompile>
+    <ClCompile Include="Image2DEffect.cpp">
+      <Filter>源文件和头文件\公共的类\Image2DEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawCommonFactory.cpp">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="DCompositionSupport.cpp">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\DCompositionSupport</Filter>
+    </ClCompile>
+    <ClCompile Include="Dxgi1Support2.cpp">
+      <Filter>源文件和头文件\公共的类\RenderAPISupport\DxgiSupport2</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskBarDlgDrawCommon.cpp">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="SupportedRenderEnums.cpp">
+      <Filter>源文件和头文件\公共的类\DrawCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsWebExperienceDetector.cpp">
+      <Filter>源文件和头文件\公共的类\WindowsWebExperienceDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinAutoAdaptSettingDlg.cpp">
+      <Filter>源文件和头文件\对话框类\SkinDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="Win11TaskbarSettingDlg.cpp">
+      <Filter>源文件和头文件\对话框类\选项设置对话框\Win11TaskbarSettingDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDialogEx.cpp">
+      <Filter>源文件和头文件\公共的类\FileDialogEx</Filter>
+    </ClCompile>
+    <ClCompile Include="StrTable.cpp">
+      <Filter>源文件和头文件\公共的类\StrTable</Filter>
+    </ClCompile>
+    <ClCompile Include="ClassicalTaskbarDlg.cpp">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="Win11TaskbarDlg.cpp">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskbarHelper.cpp">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinManager.cpp">
+      <Filter>源文件和头文件\公共的类\SkinManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsHelper.cpp">
+      <Filter>源文件和头文件\公共的类\IniHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="PluginUpdateHelper.cpp">
+      <Filter>源文件和头文件\公共的类\PluginUpdateHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="DisplayItem.cpp">
+      <Filter>源文件和头文件\公共的类\DisplayItem</Filter>
+    </ClCompile>
+    <ClCompile Include="WineTaskbarDlg.cpp">
+      <Filter>源文件和头文件\TaskBarDlg</Filter>
+    </ClCompile>
+    <ClCompile Include="PdhHardwareQuery\CPUUsage.cpp">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClCompile>
+    <ClCompile Include="PdhHardwareQuery\CpuFreq.cpp">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClCompile>
+    <ClCompile Include="PdhHardwareQuery\GpuUsage.cpp">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClCompile>
+    <ClCompile Include="PdhHardwareQuery\PdhQuery.cpp">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClCompile>
+    <ClCompile Include="PdhHardwareQuery\DiskUsage.cpp">
+      <Filter>源文件和头文件\公共的类\PdhHardwareQuery</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TrafficMonitor.rc">
@@ -531,104 +851,110 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="..\LICENSE" />
-    <None Include="res\license.bin">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="..\LICENSE_CN" />
-    <None Include="res\menu_icon\text1.bin">
-      <Filter>资源文件</Filter>
+    <None Include="language\Simplified_Chinese.ini">
+      <Filter>资源文件\language</Filter>
+    </None>
+    <None Include="language\Traditional_Chinese.ini">
+      <Filter>资源文件\language</Filter>
+    </None>
+    <None Include="language\English.ini">
+      <Filter>资源文件\language</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\TrafficMonitor.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\about_background.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\donate.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\notifyicon.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\about_background_hd.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\notifyicon2.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\notifyicon3.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\notify_preview.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\notifyicon4.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\notify_preview_light.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\donate_wechart.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\bitmap3.bmp">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\exit.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\help.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\info.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\lock.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\setting.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\statistics.ico">
-      <Filter>资源文件</Filter>
-    </Image>
     <Image Include="res\menu_icon\close.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\pin.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\skn.ico">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\icons</Filter>
     </Image>
     <Image Include="res\menu_icon\connection.ico">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\icons</Filter>
     </Image>
-    <Image Include="res\menu_icon\mouse.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\main_window.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\taskbar_window.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\notify.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\more.ico">
-      <Filter>资源文件</Filter>
-    </Image>
-    <Image Include="res\menu_icon\item.ico">
-      <Filter>资源文件</Filter>
+    <Image Include="res\menu_icon\exit.ico">
+      <Filter>资源文件\icons</Filter>
     </Image>
     <Image Include="res\menu_icon\function.ico">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\help.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\info.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\item.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\lock.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\main_window.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\more.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\mouse.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\notify.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\notifyicon.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\notifyicon2.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\notifyicon3.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\notifyicon4.ico">
+      <Filter>资源文件\icons</Filter>
     </Image>
     <Image Include="res\notifyicon5.ico">
-      <Filter>资源文件</Filter>
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\pin.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\plugin_disabled.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\plugins.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\setting.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\skn.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\statistics.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\task_manager.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\menu_icon\taskbar_window.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\TrafficMonitor.ico">
+      <Filter>资源文件\icons</Filter>
+    </Image>
+    <Image Include="res\about_background.bmp">
+      <Filter>资源文件\bitmaps</Filter>
+    </Image>
+    <Image Include="res\about_background_hd.bmp">
+      <Filter>资源文件\bitmaps</Filter>
+    </Image>
+    <Image Include="res\bitmap3.bmp">
+      <Filter>资源文件\bitmaps</Filter>
+    </Image>
+    <Image Include="res\notify_preview.bmp">
+      <Filter>资源文件\bitmaps</Filter>
+    </Image>
+    <Image Include="res\notify_preview_light.bmp">
+      <Filter>资源文件\bitmaps</Filter>
     </Image>
   </ItemGroup>
 </Project>

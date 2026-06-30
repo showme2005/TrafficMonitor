@@ -4,7 +4,7 @@
 #include "MessageDlg.h"
 #include "DrawCommon.h"
 
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
+BEGIN_MESSAGE_MAP(CAboutDlg, CBaseDialog)
     //ON_STN_CLICKED(IDC_STATIC_DONATE, &CAboutDlg::OnStnClickedStaticDonate)
     ON_MESSAGE(WM_LINK_CLICKED, &CAboutDlg::OnLinkClicked)
     ON_WM_PAINT()
@@ -12,18 +12,17 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
     ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
-CAboutDlg::CAboutDlg() : CDialog(IDD_ABOUTBOX)
+CAboutDlg::CAboutDlg() : CBaseDialog(IDD_ABOUTBOX)
 {
 }
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-    CDialog::DoDataExchange(pDX);
+    CBaseDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_STATIC_MAIL, m_mail);
     DDX_Control(pDX, IDC_STATIC_ACKNOWLEDGEMENT, m_acknowledgement);
     DDX_Control(pDX, IDC_STATIC_GITHUB, m_github);
-    DDX_Control(pDX, IDC_STATIC_DONATE, m_donate);
-    DDX_Control(pDX, IDC_TRANSLATOR_STATIC, m_translaotr_static);
+    DDX_Control(pDX, IDC_TRANSLATOR_STATIC, m_translator_static);
     DDX_Control(pDX, IDC_STATIC_LICENSE, m_license);
     DDX_Control(pDX, IDC_OPENHARDWAREMONITOR_LINK, m_openhardwaremonitor_link);
     DDX_Control(pDX, IDC_TINYXML2_LINK, m_tinyxml2_link);
@@ -37,17 +36,48 @@ CString CAboutDlg::GetDonateList()
     return CCommon::GetTextResource(IDR_ACKNOWLEDGEMENT_TEXT, 2);
 }
 
+CString CAboutDlg::GetDialogName() const
+{
+    return _T("AboutDlg");
+}
+
+bool CAboutDlg::InitializeControls()
+{
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_STATIC_MAIL },
+        { CtrlTextInfo::L3, IDC_STATIC_GITHUB },
+        { CtrlTextInfo::L2, IDC_STATIC_GITEE },
+        { CtrlTextInfo::L4, IDC_STATIC_LICENSE },
+        { CtrlTextInfo::L3, IDC_STATIC_DONATE },
+        { CtrlTextInfo::L2, IDC_STATIC_ACKNOWLEDGEMENT }
+        });
+    return true;
+}
+
+CRect CAboutDlg::CalculatePicRect()
+{
+    CRect rect;
+    GetClientRect(rect);
+    CRect rc_pic = rect;
+    ::GetWindowRect(GetDlgItem(IDC_STATIC_VERSION)->GetSafeHwnd(), rect);
+    ScreenToClient(rect);
+    rc_pic.bottom = rect.top - theApp.DPI(6);
+    if (rc_pic.Height() <= 0)
+        rc_pic.bottom = rc_pic.top + theApp.DPI(50);
+    return rc_pic;
+}
+
 BOOL CAboutDlg::OnInitDialog()
 {
-    CDialog::OnInitDialog();
+    CBaseDialog::OnInitDialog();
 
     // TODO:  在此添加额外的初始化
-    SetWindowText(CCommon::LoadText(IDS_TITLE_ABOUT));
+    SetRememberDlgSize(false);
+
     m_mail.SetURL(_T("mailto:zhongyang219@hotmail.com"));   //设置超链接
     //m_check_update.SetURL(_T("http://pan.baidu.com/s/1c1LkPQ4"));
     m_github.SetURL(_T("https://github.com/zhongyang219/TrafficMonitor"));
     m_gitee.SetURL(_T("https://gitee.com/zhongyang219/TrafficMonitor"));
-    m_donate.SetLinkIsURL(false);
     m_acknowledgement.SetLinkIsURL(false);
     m_license.SetLinkIsURL(false);
 
@@ -59,26 +89,33 @@ BOOL CAboutDlg::OnInitDialog()
     m_tinyxml2_link.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
     m_musicplayer2_link.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
     m_simplenotepad_link.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
+    m_mail.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
+    m_acknowledgement.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
+    m_github.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
+    m_gitee.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
+    m_license.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
 
     //设置版本信息
     CString version_info;
     GetDlgItemText(IDC_STATIC_VERSION, version_info);
-    version_info.Replace(_T("<version>"), VERSION);
+    CString str_lite;
+#ifdef WITHOUT_TEMPERATURE
+    str_lite = CCommon::LoadText(_T(" ("), IDS_WITHOUT_TEMPERATURE, _T(")"));
+#endif
+    version_info = CCommon::StringFormat(version_info, { str_lite, VERSION });
 
 #ifdef COMPILE_FOR_WINXP
     version_info += _T(" (For WinXP)");
 #endif // COMPILE_FOR_WINXP
 
-#ifdef _M_X64
+#ifdef _M_ARM64EC
+    version_info += _T(" (Arm64EC)");
+#elif _M_X64
     version_info += _T(" (x64)");
 #endif
 
 #ifdef _DEBUG
     version_info += _T(" (Debug)");
-#endif
-
-#ifdef WITHOUT_TEMPERATURE
-    version_info += CCommon::LoadText(_T(" ("), IDS_WITHOUT_TEMPERATURE, _T(")"));
 #endif
 
     SetDlgItemText(IDC_STATIC_VERSION, version_info);
@@ -87,7 +124,7 @@ BOOL CAboutDlg::OnInitDialog()
     CString temp_str;
     GetDlgItemText(IDC_STATIC_COPYRIGHT, temp_str);
     CString str_compile_time = CCommon::GetLastCompileTime();
-    temp_str.Replace(_T("<compile_date>"), str_compile_time);
+    temp_str = CCommon::StringFormat(temp_str, { COPYRITE_YEAR, str_compile_time });
     SetDlgItemText(IDC_STATIC_COPYRIGHT, temp_str);
 
     m_tool_tip.Create(this, TTS_ALWAYSTIP | TTS_NOPREFIX);
@@ -95,7 +132,6 @@ BOOL CAboutDlg::OnInitDialog()
     //m_tool_tip.AddTool(&m_check_update, _T("到百度网盘链接查看是否有更新\r\nhttp://pan.baidu.com/s/1c1LkPQ4"));
     m_tool_tip.AddTool(&m_github, CCommon::LoadText(IDS_GOTO_GITHUB, _T("\r\nhttps://github.com/zhongyang219/TrafficMonitor")));
     m_tool_tip.AddTool(&m_gitee, CCommon::LoadText(IDS_GOTO_GITEE, _T("\r\nhttps://gitee.com/zhongyang219/TrafficMonitor")));
-    m_tool_tip.AddTool(&m_donate, CCommon::LoadText(IDS_DONATE_ATHOUR));
     m_tool_tip.AddTool(&m_openhardwaremonitor_link, m_openhardwaremonitor_link.GetURL());
     m_tool_tip.AddTool(&m_tinyxml2_link, m_tinyxml2_link.GetURL());
     m_tool_tip.AddTool(&m_musicplayer2_link, CCommon::LoadText(IDS_MUSICPLAYER2_DESCRIPTION) + _T("\r\n") + m_musicplayer2_link.GetURL());
@@ -105,26 +141,26 @@ BOOL CAboutDlg::OnInitDialog()
     m_tool_tip.SetMaxTipWidth(800);
 
     //设置翻译者信息
-    int language_code;
-    language_code = _ttoi(CCommon::LoadText(IDS_LANGUAGE_CODE));
-    if (language_code == 1 || language_code == 2)       //语言是简体中文和英文时不显示翻译者信息
-        m_translaotr_static.ShowWindow(SW_HIDE);
-    if (language_code == 3)     //显示繁体中文翻译者的信息
+    const auto& language_info{ theApp.m_str_table.GetLanguageInfo() };
+    wstring language_tag{ language_info.bcp_47 };
+    if (language_info.translator.empty())           //没有翻译者时不显示翻译者信息
     {
-        m_translaotr_static.SetURL(_T("http://mkvq.blogspot.com/"));
-        m_tool_tip.AddTool(&m_translaotr_static, CCommon::LoadText(IDS_CONTACT_TRANSLATOR, _T("\r\nhttp://mkvq.blogspot.com/")));
+        m_translator_static.ShowWindow(SW_HIDE);
     }
-    m_translaotr_static.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
-
-    //设置图片的位置
-    CRect rect;
-    GetClientRect(rect);
-    m_rc_pic = rect;
-    ::GetWindowRect(GetDlgItem(IDC_STATIC_VERSION)->GetSafeHwnd(), rect);
-    ScreenToClient(rect);
-    m_rc_pic.bottom = rect.top - theApp.DPI(6);
-    if (m_rc_pic.Height() <= 0)
-        m_rc_pic.bottom = m_rc_pic.top + theApp.DPI(50);
+    m_translator_static.SetWindowTextW(theApp.m_str_table.LoadTextFormat(L"TXT_ABOUT_TRANSLATOR", { language_info.display_name, language_info.translator }).c_str());
+    std::wstring translator_url{ language_info.translator_url };
+    if (!translator_url.empty())     //显示翻译者的信息
+    {
+        //如果url中包含“@”但是前面没有“mailto:”，则在前面加上“mailto:”
+        if (translator_url.find(L'@') != std::wstring::npos && (translator_url.size() < 7 || translator_url.substr(0, 7) != L"mailto:"))
+            translator_url = L"mailto:" + translator_url;
+        m_translator_static.SetURL(translator_url.c_str());
+        CString str_tool_tip = CCommon::LoadText(IDS_CONTACT_TRANSLATOR);
+        str_tool_tip += _T("\r\n");
+        str_tool_tip += translator_url.c_str();
+        m_tool_tip.AddTool(&m_translator_static, str_tool_tip);
+    }
+    m_translator_static.SetBackgroundColor(GetSysColor(COLOR_WINDOW));
 
     //加载图片
     m_about_pic.LoadBitmap(IDB_ABOUT_BACKGROUND_HD);
@@ -139,7 +175,7 @@ BOOL CAboutDlg::PreTranslateMessage(MSG* pMsg)
     if (pMsg->message == WM_MOUSEMOVE)
         m_tool_tip.RelayEvent(pMsg);
 
-    return CDialog::PreTranslateMessage(pMsg);
+    return CBaseDialog::PreTranslateMessage(pMsg);
 }
 
 //void CAboutDlg::OnStnClickedStaticDonate()
@@ -151,12 +187,7 @@ BOOL CAboutDlg::PreTranslateMessage(MSG* pMsg)
 afx_msg LRESULT CAboutDlg::OnLinkClicked(WPARAM wParam, LPARAM lParam)
 {
     CWnd* pCtrl = (CWnd*)wParam;
-    if (pCtrl == &m_donate)
-    {
-        CDonateDlg donateDlg;
-        donateDlg.DoModal();
-    }
-    else if (pCtrl == &m_acknowledgement)
+    if (pCtrl == &m_acknowledgement)
     {
         CString strContent = GetDonateList();
         //strContent += _T("\r\n");
@@ -183,11 +214,12 @@ void CAboutDlg::OnPaint()
 {
     CPaintDC dc(this); // device context for painting
                        // TODO: 在此处添加消息处理程序代码
-                       // 不为绘图消息调用 CDialog::OnPaint()
+                       // 不为绘图消息调用 CBaseDialog::OnPaint()
     CDrawCommon draw;
     draw.Create(&dc, this);
-    draw.GetDC()->FillSolidRect(m_rc_pic, RGB(161, 200, 255));
-    draw.DrawBitmap(m_about_pic, m_rc_pic.TopLeft(), m_rc_pic.Size(), CDrawCommon::StretchMode::FIT);
+    CRect rc_pic = CalculatePicRect();
+    draw.GetDC()->FillSolidRect(rc_pic, RGB(161, 200, 255));
+    draw.DrawBitmap(m_about_pic, rc_pic.TopLeft(), rc_pic.Size(), CDrawCommon::StretchMode::FIT);
 }
 
 
@@ -218,13 +250,13 @@ BOOL CAboutDlg::OnEraseBkgnd(CDC* pDC)
     pDC->FillSolidRect(rc_gray, GetSysColor(COLOR_BTNFACE));
 
     return TRUE;
-    //return CDialog::OnEraseBkgnd(pDC);
+    //return CBaseDialog::OnEraseBkgnd(pDC);
 }
 
 
 HBRUSH CAboutDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-    HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+    HBRUSH hbr = CBaseDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
     // TODO:  在此更改 DC 的任何特性
     //去掉static控件的灰色灰色背景

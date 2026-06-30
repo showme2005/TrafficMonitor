@@ -43,7 +43,7 @@ protected:
     void EnableControl();
 
     virtual void SetControlMouseWheelEnable(bool enable) override;
-
+    virtual bool InitializeControls() override;
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
     DECLARE_MESSAGE_MAP()
@@ -75,4 +75,10 @@ public:
     afx_msg void OnBnClickedBrowseButton();
     afx_msg void OnBnClickedDisplayTextSettingButton();
     afx_msg void OnCbnSelchangeMemoryDisplayCombo();
+    afx_msg void OnBnClickedAlwaysOnTopCheck();
+    afx_msg void OnBnClickedMousePenetrateCheck();
+    afx_msg void OnBnClickedLockWindowPosCheck();
+    afx_msg void OnBnClickedAlowOutOfBorderCheck();
+    afx_msg void OnBnClickedResotreSkinDefaultButton();
+    afx_msg void OnEnChangeFontSizeEdit();
 };

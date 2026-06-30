@@ -6,10 +6,5 @@ public:
     ~CTest();
 
     static void Test();
-
-private:
-    static void TestHttpQequest();
-    static void TestGetLicense();
-    static void TestSkin();
-    static void TestCrash();
+    static void TestCommand();
 };

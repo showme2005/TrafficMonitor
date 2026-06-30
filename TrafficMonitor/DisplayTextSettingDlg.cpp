@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "TrafficMonitor.h"
 #include "DisplayTextSettingDlg.h"
+#include "TrafficMonitorDlg.h"
+#include "SkinManager.h"
 
 
 // CDisplayTextSettingDlg 对话框
@@ -34,6 +36,10 @@ CString CDisplayTextSettingDlg::GetDialogName() const
 
 BEGIN_MESSAGE_MAP(CDisplayTextSettingDlg, CBaseDialog)
     ON_BN_CLICKED(IDC_RESTORE_DEFAULT_BUTTON, &CDisplayTextSettingDlg::OnBnClickedRestoreDefaultButton)
+    ON_COMMAND(ID_RESTORE_DEFAULT, &CDisplayTextSettingDlg::OnRestoreDefault)
+    ON_NOTIFY(NM_RCLICK, IDC_LIST1, &CDisplayTextSettingDlg::OnNMRClickList1)
+    ON_WM_INITMENU()
+    ON_NOTIFY(NM_CLICK, IDC_LIST1, &CDisplayTextSettingDlg::OnNMClickList1)
 END_MESSAGE_MAP()
 
 
@@ -58,69 +64,56 @@ BOOL CDisplayTextSettingDlg::OnInitDialog()
     m_list_ctrl.InsertColumn(0, CCommon::LoadText(IDS_ITEM), LVCFMT_LEFT, width0);		//插入第0列
     m_list_ctrl.InsertColumn(1, CCommon::LoadText(IDS_VALUE), LVCFMT_LEFT, width1);		//插入第1列
 
+    //如果是主窗口，清除当前皮肤中没有的行
+    if (m_main_window_text)
+    {
+        std::set<CommonDisplayItem> all_skin_items;
+        CTrafficMonitorDlg::Instance()->GetCurSkin().GetSkinDisplayItems(all_skin_items);
+
+        DispStrings temp = m_display_texts;
+        m_display_texts = DispStrings();
+        for (const auto& display_item : all_skin_items)
+        {
+            m_display_texts.Get(display_item) = temp.GetConst(display_item);
+        }
+    }
+
     //向列表中插入行
     for (auto iter = m_display_texts.GetAllItems().begin(); iter != m_display_texts.GetAllItems().end(); ++iter)
     {
-        CString item_name;
-        switch (iter->first)
-        {
-        case TDI_UP:
-            item_name = CCommon::LoadText(IDS_UPLOAD);
-            break;
-        case TDI_DOWN:
-            item_name = CCommon::LoadText(IDS_DOWNLOAD);
-            break;
-        case TDI_CPU:
-            item_name = CCommon::LoadText(IDS_CPU_USAGE);
-            break;
-        case TDI_MEMORY:
-            item_name = CCommon::LoadText(IDS_MEMORY_USAGE);
-            break;
-#ifndef WITHOUT_TEMPERATURE
-        case TDI_GPU_USAGE:
-            item_name = CCommon::LoadText(IDS_GPU_USAGE);
-            break;
-        case TDI_CPU_TEMP:
-            item_name = CCommon::LoadText(IDS_CPU_TEMPERATURE);
-            break;
-        case TDI_GPU_TEMP:
-            item_name = CCommon::LoadText(IDS_GPU_TEMPERATURE);
-            break;
-        case TDI_HDD_TEMP:
-            item_name = CCommon::LoadText(IDS_HDD_TEMPERATURE);
-            break;
-        case TDI_MAIN_BOARD_TEMP:
-            item_name = CCommon::LoadText(IDS_MAINBOARD_TEMPERATURE);
-            break;
-#endif
-        default:
-            break;
-        }
+        CString item_name = iter->first.GetItemName();
         if (!item_name.IsEmpty())
         {
             int index = m_list_ctrl.GetItemCount();
             m_list_ctrl.InsertItem(index, item_name);
             m_list_ctrl.SetItemText(index, 1, iter->second.c_str());
-            m_list_ctrl.SetItemData(index, iter->first);
+            m_list_ctrl.SetItemData(index, (DWORD_PTR)&(iter->first));
         }
     }
 
     m_list_ctrl.SetEditColMethod(CListCtrlEx::EC_SPECIFIED);        //设置列表可编辑
     m_list_ctrl.SetEditableCol({ 1 });                              //设置可编辑的列
 
+    CCommon::LoadMenuResource(m_menu, IDR_DISPLAY_ITEM_CONTEXT_MENU); //装载右键菜单
+
     return TRUE;  // return TRUE unless you set the focus to a control
                   // 异常: OCX 属性页应返回 FALSE
 }
 
+CommonDisplayItem CDisplayTextSettingDlg::GetDisplayItem(int row)
+{
+    CommonDisplayItem* item = (CommonDisplayItem*)m_list_ctrl.GetItemData(row);
+    return *item;
+}
 
 void CDisplayTextSettingDlg::OnOK()
 {
     // TODO: 在此添加专用代码和/或调用基类
-    
+
     int item_count = m_list_ctrl.GetItemCount();
     for (int i{}; i < item_count; i++)
     {
-        DisplayItem display_item = static_cast<DisplayItem>(m_list_ctrl.GetItemData(i));
+        CommonDisplayItem display_item = GetDisplayItem(i);
         m_display_texts.Get(display_item) = m_list_ctrl.GetItemText(i, 1).GetString();
     }
 
@@ -133,49 +126,77 @@ void CDisplayTextSettingDlg::OnBnClickedRestoreDefaultButton()
 {
     // TODO: 在此添加控件通知处理程序代码
     int item_count = m_list_ctrl.GetItemCount();
-    for (int i{}; i < item_count; i++)
+    CTrafficMonitorDlg* pMainWnd = CTrafficMonitorDlg::Instance();
+    if (m_main_window_text && pMainWnd != nullptr)
     {
-        DisplayItem display_item = static_cast<DisplayItem>(m_list_ctrl.GetItemData(i));
-        CString default_text;
-        switch (display_item)
+        //主窗口恢复默认显示文本时，从皮肤获取
+        SkinSettingData skin_setting_data;
+        CSkinManager::SkinSettingDataFronSkin(skin_setting_data, pMainWnd->GetCurSkin());
+        for (int i{}; i < item_count; i++)
         {
-        case TDI_UP:
-            if (m_main_window_text)
-                default_text = CCommon::LoadText(IDS_UPLOAD_DISP, _T(": "));
-            else
-                default_text = _T("↑: ");
-            break;
-        case TDI_DOWN:
-            if (m_main_window_text)
-                default_text = CCommon::LoadText(IDS_DOWNLOAD_DISP, _T(": "));
-            else
-                default_text = _T("↓: ");
-            break;
-            break;
-        case TDI_CPU:
-            default_text = _T("CPU: ");
-            break;
-        case TDI_MEMORY:
-            default_text = CCommon::LoadText(IDS_MEMORY_DISP, _T(": "));
-            break;
-        case TDI_GPU_USAGE:
-            default_text = CCommon::LoadText(IDS_GPU_DISP, _T(": "));
-            break;
-        case TDI_CPU_TEMP:
-            default_text = _T("CPU: ");
-            break;
-        case TDI_GPU_TEMP:
-            default_text = CCommon::LoadText(IDS_GPU_DISP, _T(": "));
-            break;
-        case TDI_HDD_TEMP:
-            default_text = CCommon::LoadText(IDS_HDD_DISP, _T(": "));
-            break;
-        case TDI_MAIN_BOARD_TEMP:
-            default_text = CCommon::LoadText(IDS_MAINBOARD_DISP, _T(": "));
-            break;
-        default:
-            break;
+            CommonDisplayItem display_item = GetDisplayItem(i);
+            std::wstring default_text = skin_setting_data.disp_str.GetConst(display_item);
+            m_list_ctrl.SetItemText(i, 1, default_text.c_str());
         }
-        m_list_ctrl.SetItemText(i, 1, default_text);
     }
+    else
+    {
+        for (int i{}; i < item_count; i++)
+        {
+            CommonDisplayItem display_item = GetDisplayItem(i);
+            std::wstring default_text = display_item.DefaultString(m_main_window_text);
+            m_list_ctrl.SetItemText(i, 1, default_text.c_str());
+        }
+    }
+}
+
+void CDisplayTextSettingDlg::OnRestoreDefault()
+{
+    if (m_item_selected >= 0)
+    {
+        CTrafficMonitorDlg* pMainWnd = CTrafficMonitorDlg::Instance();
+        if (m_main_window_text && pMainWnd != nullptr)
+        {
+            //主窗口恢复默认显示文本时，从皮肤获取
+            SkinSettingData skin_setting_data;
+            CSkinManager::SkinSettingDataFronSkin(skin_setting_data, pMainWnd->GetCurSkin());
+            CommonDisplayItem display_item = GetDisplayItem(m_item_selected);
+            std::wstring default_text = skin_setting_data.disp_str.GetConst(display_item);
+            m_list_ctrl.SetItemText(m_item_selected, 1, default_text.c_str());
+        }
+        else
+        {
+            CommonDisplayItem display_item = GetDisplayItem(m_item_selected);
+            std::wstring default_text = display_item.DefaultString(m_main_window_text);
+            m_list_ctrl.SetItemText(m_item_selected, 1, default_text.c_str());
+        }
+    }
+}
+
+void CDisplayTextSettingDlg::OnNMRClickList1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+    LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+    m_item_selected = pNMItemActivate->iItem;
+    //弹出右键菜单
+    CMenu* pContextMenu = m_menu.GetSubMenu(0);	//获取第一个弹出菜单
+    CPoint point1;	//定义一个用于确定光标位置的位置
+    GetCursorPos(&point1);	//获取当前光标的位置，以便使得菜单可以跟随光标
+    pContextMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point1.x, point1.y, this); //在指定位置显示弹出菜单
+
+    *pResult = 0;
+}
+
+void CDisplayTextSettingDlg::OnInitMenu(CMenu* pMenu)
+{
+    CBaseDialog::OnInitMenu(pMenu);
+
+    bool selected_enable{ m_item_selected >= 0 };
+    pMenu->EnableMenuItem(ID_RESTORE_DEFAULT, MF_BYCOMMAND | (selected_enable ? MF_ENABLED : MF_GRAYED));
+}
+
+void CDisplayTextSettingDlg::OnNMClickList1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+    LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+    m_item_selected = pNMItemActivate->iItem;
+    *pResult = 0;
 }

@@ -1,4 +1,4 @@
-// ColorStatic.cpp :  µœ÷Œƒº˛
+Ôªø// ColorStatic.cpp : ÂÆûÁé∞Êñá‰ª∂
 //
 
 #include "stdafx.h"
@@ -45,6 +45,12 @@ void CColorStatic::SetLinkCursor(bool link_cursor)
 	m_link_cursor = link_cursor;
 }
 
+void CColorStatic::EnableWindow(bool enable)
+{
+    CStatic::EnableWindow(enable);
+    Invalidate(FALSE);
+}
+
 
 BEGIN_MESSAGE_MAP(CColorStatic, CStatic)
 	ON_WM_PAINT()
@@ -57,7 +63,7 @@ END_MESSAGE_MAP()
 
 
 
-// CColorStatic œ˚œ¢¥¶¿Ì≥Ã–Ú
+// CColorStatic Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è
 
 
 
@@ -65,8 +71,8 @@ END_MESSAGE_MAP()
 void CColorStatic::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
-					   // TODO: ‘⁄¥À¥¶ÃÌº”œ˚œ¢¥¶¿Ì≥Ã–Ú¥˙¬Î
-					   // ≤ªŒ™ªÊÕºœ˚œ¢µ˜”√ CStatic::OnPaint()
+					   // TODO: Âú®Ê≠§Â§ÑÊ∑ªÂä†Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è‰ª£Á†Å
+					   // ‰∏ç‰∏∫ÁªòÂõæÊ∂àÊÅØË∞ÉÁî® CStatic::OnPaint()
 	CRect rect;
 	GetClientRect(rect);
 	rect.MoveToXY(0, 0);
@@ -77,98 +83,52 @@ void CColorStatic::OnPaint()
 
     int color_num = static_cast<int>(m_colors.size());
 
-	if (IsWindowEnabled())
+	if (IsWindowEnabled() && color_num > 0)
 	{
-		switch (color_num)
+		if (color_num == 1)
 		{
-		case 1:
 			dc.FillSolidRect(rect, m_colors[0]);
-			break;
-		case 4:
-			dc.FillSolidRect(rect, RGB(255,255,255));
-			rc_tmp.right /= 2;
-			rc_tmp.bottom /= 2;
-			dc.FillSolidRect(rc_tmp, m_colors[0]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[1]);
-			rc_tmp.MoveToXY(0, rc_tmp.bottom);
-			dc.FillSolidRect(rc_tmp, m_colors[2]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[3]);
-			break;
-		case 8:
+		}
+		//È¢úËâ≤Êï∞ÈáèÂ§ß‰∫éÊàñÁ≠â‰∫é4ÔºåÂπ∂‰∏îÊòØ4‰∏™‰ΩçÊï∞Êó∂Ôºå‰∏ä‰∏ã‰∏§Ë°å‰ª•‚ÄúZ‚ÄùÂ≠óÂΩ¢ÊéíÂàó
+		else if (color_num >= 4 && color_num % 4 == 0)
+		{
 			dc.FillSolidRect(rect, RGB(255, 255, 255));
-			rc_tmp.right /= (color_num / 2);
-			rc_tmp.bottom /= 2;
-			dc.FillSolidRect(rc_tmp, m_colors[0]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[1]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[4]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[5]);
-			rc_tmp.MoveToXY(0, rc_tmp.bottom);
-			dc.FillSolidRect(rc_tmp, m_colors[2]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[3]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[6]);
-			rc_tmp.MoveToX(rc_tmp.right);
-			dc.FillSolidRect(rc_tmp, m_colors[7]);
-			break;
-        case 16:
-            dc.FillSolidRect(rect, RGB(255, 255, 255));
-            rc_tmp.right /= color_num / 2;
-            rc_tmp.bottom /= 2;
-            dc.FillSolidRect(rc_tmp, m_colors[0]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[1]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[4]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[5]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[8]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[9]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[12]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[13]);
-
-            rc_tmp.MoveToXY(0, rc_tmp.bottom);
-            dc.FillSolidRect(rc_tmp, m_colors[2]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[3]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[6]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[7]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[10]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[11]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[14]);
-            rc_tmp.MoveToX(rc_tmp.right);
-            dc.FillSolidRect(rc_tmp, m_colors[15]);
-            break;
-        default:
-			dc.FillSolidRect(rect, RGB(255, 255, 255));
-			rc_tmp.right = rect.Width() / color_num;
-			for (int i{}; i < color_num; i++)
+			int group_num = color_num / 4;		//È¢úËâ≤ÁªÑÊï∞Ôºà4‰∏™‰∏∫‰∏ÄÁªÑÔºâ
+			for (int i = 0; i < group_num; i++)
 			{
-				rc_tmp.MoveToX(i*(rect.Width() / color_num));
-				dc.FillSolidRect(rc_tmp, m_colors[i]);
+				int group_left = rect.Width() * i / group_num;
+				int group_right = rect.Width() * (i + 1) / group_num;
+				CRect rc_group(group_left, 0, group_right, rect.Height());	//ÂΩìÂâçÁªÑÁöÑÁü©ÂΩ¢Âå∫Âüü
+				CRect rc1(group_left, 0, group_left + rc_group.Width() / 2, rc_group.Height() / 2);
+				CRect rc2(group_left + rc_group.Width() / 2, 0, rc_group.right, rc_group.Height() / 2);
+				CRect rc3(group_left, rc_group.Height() / 2, group_left + rc_group.Width() / 2, rc_group.bottom);
+				CRect rc4(group_left + rc_group.Width() / 2, rc_group.Height() / 2, rc_group.right, rc_group.bottom);
+				dc.FillSolidRect(rc1, m_colors[static_cast<size_t>(i) * 4]);
+				dc.FillSolidRect(rc2, m_colors[static_cast<size_t>(i) * 4 + 1]);
+				dc.FillSolidRect(rc3, m_colors[static_cast<size_t>(i) * 4 + 2]);
+				dc.FillSolidRect(rc4, m_colors[static_cast<size_t>(i) * 4 + 3]);
+			}
+		}
+		//ÂÖ∂‰ªñÊÉÖÂÜµÔºå‰∏ÄË°å‰ªéÂ∑¶Âà∞Âè≥ÊéíÂàó
+		else
+		{
+			dc.FillSolidRect(rect, RGB(255, 255, 255));
+			for (int i = 0; i < color_num; i++)
+			{
+				int left = rect.Width() * i / color_num;
+				int right = rect.Width() * (i + 1) / color_num;
+				CRect rc_cell(left, 0, right, rect.Height());
+				dc.FillSolidRect(rc_cell, m_colors[i]);
 			}
 		}
 
-		//ª≠±ﬂøÚ
+		//ÁîªËæπÊ°Ü
 		draw.DrawRectOutLine(rect, RGB(160, 160, 160));
 	}
 	else
 	{
-		dc.FillSolidRect(rect, RGB(225, 225, 225));
+        CBrush brush(HS_BDIAGONAL, RGB(160, 160, 160));
+        dc.FillRect(rect, &brush);
 		draw.DrawRectOutLine(rect, RGB(192, 192, 192));
 	}
 }
@@ -176,7 +136,7 @@ void CColorStatic::OnPaint()
 
 void CColorStatic::OnMouseHover(UINT nFlags, CPoint point)
 {
-	// TODO: ‘⁄¥ÀÃÌº”œ˚œ¢¥¶¿Ì≥Ã–Ú¥˙¬Î∫Õ/ªÚµ˜”√ƒ¨»œ÷µ
+	// TODO: Âú®Ê≠§Ê∑ªÂä†Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è‰ª£Á†ÅÂíå/ÊàñË∞ÉÁî®ÈªòËÆ§ÂÄº
 	m_hover = true;
 
 	CStatic::OnMouseHover(nFlags, point);
@@ -185,7 +145,7 @@ void CColorStatic::OnMouseHover(UINT nFlags, CPoint point)
 
 void CColorStatic::OnMouseLeave()
 {
-	// TODO: ‘⁄¥ÀÃÌº”œ˚œ¢¥¶¿Ì≥Ã–Ú¥˙¬Î∫Õ/ªÚµ˜”√ƒ¨»œ÷µ
+	// TODO: Âú®Ê≠§Ê∑ªÂä†Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è‰ª£Á†ÅÂíå/ÊàñË∞ÉÁî®ÈªòËÆ§ÂÄº
 	m_hover = false;
 
 	CStatic::OnMouseLeave();
@@ -194,7 +154,7 @@ void CColorStatic::OnMouseLeave()
 
 BOOL CColorStatic::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
-	// TODO: ‘⁄¥ÀÃÌº”œ˚œ¢¥¶¿Ì≥Ã–Ú¥˙¬Î∫Õ/ªÚµ˜”√ƒ¨»œ÷µ
+	// TODO: Âú®Ê≠§Ê∑ªÂä†Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è‰ª£Á†ÅÂíå/ÊàñË∞ÉÁî®ÈªòËÆ§ÂÄº
 	if(m_link_cursor && m_hover)
 	{
 		::SetCursor(::LoadCursor(NULL, MAKEINTRESOURCE(32649)));
@@ -207,7 +167,7 @@ BOOL CColorStatic::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 
 void CColorStatic::PreSubclassWindow()
 {
-	// TODO: ‘⁄¥ÀÃÌº”◊®”√¥˙¬Î∫Õ/ªÚµ˜”√ª˘¿‡
+	// TODO: Âú®Ê≠§Ê∑ªÂä†‰∏ìÁî®‰ª£Á†ÅÂíå/ÊàñË∞ÉÁî®Âü∫Á±ª
 	DWORD dwStyle = GetStyle();
 	::SetWindowLong(GetSafeHwnd(), GWL_STYLE, dwStyle | SS_NOTIFY);
 	ModifyStyleEx(WS_EX_STATICEDGE, NULL);
@@ -218,7 +178,7 @@ void CColorStatic::PreSubclassWindow()
 
 void CColorStatic::OnMouseMove(UINT nFlags, CPoint point)
 {
-	// TODO: ‘⁄¥ÀÃÌº”œ˚œ¢¥¶¿Ì≥Ã–Ú¥˙¬Î∫Õ/ªÚµ˜”√ƒ¨»œ÷µ
+	// TODO: Âú®Ê≠§Ê∑ªÂä†Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è‰ª£Á†ÅÂíå/ÊàñË∞ÉÁî®ÈªòËÆ§ÂÄº
 	if (m_link_cursor)
 	{
 		TRACKMOUSEEVENT tme;
@@ -235,8 +195,8 @@ void CColorStatic::OnMouseMove(UINT nFlags, CPoint point)
 
 void CColorStatic::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	// TODO: ‘⁄¥ÀÃÌº”œ˚œ¢¥¶¿Ì≥Ã–Ú¥˙¬Î∫Õ/ªÚµ˜”√ƒ¨»œ÷µ
-	//»Áπ˚µ•ª˜¡À Û±Í◊Ûº¸£¨‘ÚœÚ∏∏¥∞ø⁄∑¢ÀÕ“ª∏ˆWM_STATIC_CLICKEDœ˚œ¢
+	// TODO: Âú®Ê≠§Ê∑ªÂä†Ê∂àÊÅØÂ§ÑÁêÜÁ®ãÂ∫è‰ª£Á†ÅÂíå/ÊàñË∞ÉÁî®ÈªòËÆ§ÂÄº
+	//Â¶ÇÊûúÂçïÂáª‰∫ÜÈº†Ê†áÂ∑¶ÈîÆÔºåÂàôÂêëÁà∂Á™óÂè£ÂèëÈÄÅ‰∏Ä‰∏™WM_STATIC_CLICKEDÊ∂àÊÅØ
 	CWnd* pParent{ GetParent() };
 	if (pParent != nullptr)
 		pParent->SendMessage(WM_STATIC_CLICKED, (WPARAM)this);

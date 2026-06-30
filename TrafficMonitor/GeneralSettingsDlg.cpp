@@ -3,8 +3,10 @@
 
 #include "stdafx.h"
 #include "TrafficMonitor.h"
+#include "TrafficMonitorDlg.h"
 #include "GeneralSettingsDlg.h"
-#include "afxdialogex.h"
+#include "PluginManagerDlg.h"
+#include "SelectConnectionsDlg.h"
 
 
 // CGeneralSettingsDlg dialog
@@ -23,6 +25,25 @@ CGeneralSettingsDlg::~CGeneralSettingsDlg()
 {
 }
 
+void CGeneralSettingsDlg::CheckTaskbarDisplayItem()
+{
+    //如果选项设置中关闭了某个硬件监控，则不显示对应的温度监控相关项目
+    if (!theApp.m_general_data.IsHardwareEnable(HI_CPU))
+    {
+        theApp.m_taskbar_data.display_item.Remove(TDI_CPU_TEMP);
+    }
+    if (!theApp.m_general_data.IsHardwareEnable(HI_GPU))
+    {
+        theApp.m_taskbar_data.display_item.Remove(TDI_GPU_TEMP);
+    }
+    if (!theApp.m_general_data.IsHardwareEnable(HI_HDD))
+    {
+        theApp.m_taskbar_data.display_item.Remove(TDI_HDD_TEMP);
+    }
+    if (!theApp.m_general_data.IsHardwareEnable(HI_MBD))
+        theApp.m_taskbar_data.display_item.Remove(TDI_MAIN_BOARD_TEMP);
+}
+
 void CGeneralSettingsDlg::SetControlMouseWheelEnable(bool enable)
 {
     m_traffic_tip_combo.SetMouseWheelEnable(enable);
@@ -38,16 +59,119 @@ void CGeneralSettingsDlg::SetControlMouseWheelEnable(bool enable)
     m_select_cpu_combo.SetMouseWheelEnable(enable);
 }
 
+void CGeneralSettingsDlg::OnSettingsApplied()
+{
+    //当设置被应用时，重置xxxx_ori的值
+    m_monitor_time_span_ori = m_data.monitor_time_span;
+    m_update_source_ori = m_data.update_source;
+}
+
+bool CGeneralSettingsDlg::InitializeControls()
+{
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_CHECK_NOW_BUTTON, CtrlTextInfo::W16 }
+        });
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_UPDATE_SORUCE_STATIC },
+        { CtrlTextInfo::L3, IDC_GITHUB_RADIO },
+        { CtrlTextInfo::L2, IDC_GITEE_RADIO }
+        });
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_RESET_AUTO_RUN_BUTTON, CtrlTextInfo::W16 }
+        });
+
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_LANGUAGE_STATIC },
+        { CtrlTextInfo::L3, IDC_LANGUAGE_COMBO }
+        });
+
+    //调整“今日使用流量已达到”这一行控件的水平位置
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_TODAY_TRAFFIC_TIP_CHECK, CtrlTextInfo::W24 },
+        { CtrlTextInfo::L3, IDC_TODAY_TRAFFIC_TIP_EDIT },
+        { CtrlTextInfo::L2, IDC_TODAY_TRAFFIC_TIP_COMBO },
+        { CtrlTextInfo::L1, IDC_TODAY_TRAFFIC_BACK_STATIC}
+        });
+    //调整“内存使用率已达到”、“温度已达到”这几行控件的水平位置
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_MEMORY_USAGE_TIP_CHECK, CtrlTextInfo::W24 },
+        { CtrlTextInfo::L3, IDC_MEMORY_USAGE_TIP_EDIT },
+        { CtrlTextInfo::L2, IDC_MEMORY_USAGE_BACK_STATIC },
+        { CtrlTextInfo::L4, IDC_CPU_TEMP_TIP_CHECK, CtrlTextInfo::W24 },
+        { CtrlTextInfo::L3, IDC_CPU_TEMP_TIP_EDIT },
+        { CtrlTextInfo::L2, IDC_CPU_TEMP_STATIC },
+        { CtrlTextInfo::L4, IDC_GPU_TEMP_TIP_CHECK, CtrlTextInfo::W24 },
+        { CtrlTextInfo::L3, IDC_GPU_TEMP_TIP_EDIT },
+        { CtrlTextInfo::L2, IDC_GPU_TEMP_STATIC },
+        { CtrlTextInfo::L4, IDC_HDD_TEMP_TIP_CHECK, CtrlTextInfo::W24 },
+        { CtrlTextInfo::L3, IDC_HDD_TIP_EDIT },
+        { CtrlTextInfo::L2, IDC_HDD_STATIC },
+        { CtrlTextInfo::L4, IDC_MBD_TEMP_TIP_CHECK, CtrlTextInfo::W24 },
+        { CtrlTextInfo::L3, IDC_MBD_TEMP_TIP_EDIT },
+        { CtrlTextInfo::L2, IDC_MBD_TEMP_STATIC },
+        });
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L1, IDC_SELECT_HDD_STATIC },
+        { CtrlTextInfo::C0, IDC_SELECT_HARD_DISK_COMBO },
+        { CtrlTextInfo::L1, IDC_SELECT_CPU_STATIC },
+        { CtrlTextInfo::C0, IDC_SELECT_CPU_COMBO },
+    });
+
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_SELECT_CONNECTIONS_BUTTON, CtrlTextInfo::W32 }
+    });
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_MONITOR_INTERVAL_STATIC },
+        { CtrlTextInfo::L3, IDC_MONITOR_SPAN_EDIT },
+        { CtrlTextInfo::L2, IDC_MILLISECONDS_STATIC },
+        { CtrlTextInfo::L1, IDC_RESTORE_DEFAULT_TIME_SPAN_BUTTON, CtrlTextInfo::W16 }
+    });
+    RepositionTextBasedControls({
+        { CtrlTextInfo::L4, IDC_PLUGIN_MANAGE_BUTTON, CtrlTextInfo::W32 }
+    });
+
+    return true;
+}
+
 bool CGeneralSettingsDlg::ShowHardwareMonitorWarning()
 {
-    if (SHMessageBoxCheck(m_hWnd, CCommon::LoadText(IDS_HARDWARE_MONITOR_WARNING), APP_NAME, MB_OKCANCEL | MB_ICONWARNING, IDOK, _T("{B8A281A7-76DF-4F0F-BF6A-1A394EF8BAD5}")) == IDOK)
-    {
-        //if (SHMessageBoxCheck(m_hWnd, CCommon::LoadText(IDS_HARDWARE_MONITOR_WARNING2), APP_NAME, MB_OKCANCEL | MB_ICONWARNING, IDOK, _T("{2777F260-6175-41E4-AF59-4085B3F58E32}")) == IDOK)
-        //{
+    //如果已经有硬件监控项目被勾选了，则不再弹出提示
+    if (m_data.hardware_monitor_item != 0)
         return true;
-        //}
-    }
+
+    if (SHMessageBoxCheck(m_hWnd, CCommon::LoadText(IDS_HARDWARE_MONITOR_WARNING), APP_NAME, MB_OKCANCEL | MB_ICONWARNING, IDOK, _T("{B8A281A7-76DF-4F0F-BF6A-1A394EF8BAD5}")) == IDOK)
+        return true;
+
     return false;
+}
+
+void CGeneralSettingsDlg::AddOrUpdateAutoRunTooltip(bool add)
+{
+    if (m_data.auto_run)
+    {
+        CString str_tool_tip;
+        if (m_data.auto_run_by_task_scheduler)
+            str_tool_tip = CCommon::LoadText(IDS_AUTO_RUN_METHOD_TASK_SCHEDULE);
+        else
+            str_tool_tip = CCommon::LoadText(IDS_AUTO_RUN_METHOD_REGESTRY);
+        if (!m_auto_run_path.empty())
+        {
+            str_tool_tip += _T("\r\n");
+            str_tool_tip += CCommon::LoadText(IDS_PATH, _T(": "));
+            str_tool_tip += m_auto_run_path.c_str();
+        }
+        if (add)
+            m_toolTip.AddTool(GetDlgItem(IDC_AUTO_RUN_CHECK), str_tool_tip);
+        else
+            m_toolTip.UpdateTipText(str_tool_tip, GetDlgItem(IDC_AUTO_RUN_CHECK));
+    }
+    else
+    {
+        if (add)
+            m_toolTip.AddTool(GetDlgItem(IDC_AUTO_RUN_CHECK), CString());
+        else
+            m_toolTip.UpdateTipText(CString(), GetDlgItem(IDC_AUTO_RUN_CHECK));
+    }
 }
 
 bool CGeneralSettingsDlg::IsMonitorTimeSpanModified() const
@@ -69,6 +193,8 @@ void CGeneralSettingsDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_MBD_TEMP_TIP_EDIT, m_mbd_temp_tip_edit);
     DDX_Control(pDX, IDC_SELECT_HARD_DISK_COMBO, m_hard_disk_combo);
     DDX_Control(pDX, IDC_SELECT_CPU_COMBO, m_select_cpu_combo);
+    DDX_Control(pDX, IDC_PLUGIN_MANAGE_BUTTON, m_plugin_manager_btn);
+    DDX_Control(pDX, IDC_SELECT_CONNECTIONS_BUTTON, m_select_connection_btn);
 }
 
 void CGeneralSettingsDlg::SetControlEnable()
@@ -81,8 +207,14 @@ void CGeneralSettingsDlg::SetControlEnable()
     m_hdd_temp_tip_edit.EnableWindow(m_data.hdd_temp_tip.enable);
     m_mbd_temp_tip_edit.EnableWindow(m_data.mainboard_temp_tip.enable);
 
-    m_hard_disk_combo.EnableWindow(m_data.IsHardwareEnable(HI_HDD));
+    //m_hard_disk_combo.EnableWindow(m_data.IsHardwareEnable(HI_HDD));
     m_select_cpu_combo.EnableWindow(m_data.IsHardwareEnable(HI_CPU));
+
+    EnableDlgCtrl(IDC_SELECT_CONNECTIONS_BUTTON, !m_data.show_all_interface);
+
+    EnableDlgCtrl(IDC_RESET_AUTO_RUN_BUTTON, m_data.auto_run);
+    EnableDlgCtrl(IDC_AUTO_RUN_METHOD_REGESTRY_RADIO, m_data.auto_run);
+    EnableDlgCtrl(IDC_AUTO_RUN_METHOD_TASK_SCHEDULE_RADIO, m_data.auto_run);
 }
 
 
@@ -90,15 +222,10 @@ BEGIN_MESSAGE_MAP(CGeneralSettingsDlg, CTabDlg)
     ON_BN_CLICKED(IDC_CHECK_NOW_BUTTON, &CGeneralSettingsDlg::OnBnClickedCheckNowButton)
     ON_BN_CLICKED(IDC_CHECK_UPDATE_CHECK, &CGeneralSettingsDlg::OnBnClickedCheckUpdateCheck)
     ON_BN_CLICKED(IDC_AUTO_RUN_CHECK, &CGeneralSettingsDlg::OnBnClickedAutoRunCheck)
-    ON_BN_CLICKED(IDC_ALLOW_SKIN_FONT_CHECK, &CGeneralSettingsDlg::OnBnClickedAllowSkinFontCheck)
-    ON_BN_CLICKED(IDC_ALLOW_SKIN_DISP_STR_CHECK, &CGeneralSettingsDlg::OnBnClickedAllowSkinDispStrCheck)
     ON_BN_CLICKED(IDC_TODAY_TRAFFIC_TIP_CHECK, &CGeneralSettingsDlg::OnBnClickedTodayTrafficTipCheck)
     ON_BN_CLICKED(IDC_MEMORY_USAGE_TIP_CHECK, &CGeneralSettingsDlg::OnBnClickedMemoryUsageTipCheck)
     ON_BN_CLICKED(IDC_OPEN_CONFIG_PATH_BUTTON, &CGeneralSettingsDlg::OnBnClickedOpenConfigPathButton)
     ON_BN_CLICKED(IDC_SHOW_ALL_CONNECTION_CHECK, &CGeneralSettingsDlg::OnBnClickedShowAllConnectionCheck)
-    ON_BN_CLICKED(IDC_USE_CPU_TIME_RADIO, &CGeneralSettingsDlg::OnBnClickedUseCpuTimeRadio)
-    ON_BN_CLICKED(IDC_USE_PDH_RADIO, &CGeneralSettingsDlg::OnBnClickedUsePdhRadio)
-    ON_NOTIFY(UDN_DELTAPOS, SPIN_ID, &CGeneralSettingsDlg::OnDeltaposSpin)
     ON_EN_KILLFOCUS(IDC_MONITOR_SPAN_EDIT, &CGeneralSettingsDlg::OnEnKillfocusMonitorSpanEdit)
     ON_BN_CLICKED(IDC_CPU_TEMP_TIP_CHECK, &CGeneralSettingsDlg::OnBnClickedCpuTempTipCheck)
     ON_BN_CLICKED(IDC_GPU_TEMP_TIP_CHECK, &CGeneralSettingsDlg::OnBnClickedGpuTempTipCheck)
@@ -113,6 +240,14 @@ BEGIN_MESSAGE_MAP(CGeneralSettingsDlg, CTabDlg)
     ON_BN_CLICKED(IDC_HDD_CHECK, &CGeneralSettingsDlg::OnBnClickedHddCheck)
     ON_BN_CLICKED(IDC_MBD_CHECK, &CGeneralSettingsDlg::OnBnClickedMbdCheck)
     ON_CBN_SELCHANGE(IDC_SELECT_CPU_COMBO, &CGeneralSettingsDlg::OnCbnSelchangeSelectCpuCombo)
+    ON_BN_CLICKED(IDC_PLUGIN_MANAGE_BUTTON, &CGeneralSettingsDlg::OnBnClickedPluginManageButton)
+    ON_BN_CLICKED(IDC_SHOW_NOTIFY_ICON_CHECK, &CGeneralSettingsDlg::OnBnClickedShowNotifyIconCheck)
+    ON_BN_CLICKED(IDC_SELECT_CONNECTIONS_BUTTON, &CGeneralSettingsDlg::OnBnClickedSelectConnectionsButton)
+    ON_BN_CLICKED(IDC_RESET_AUTO_RUN_BUTTON, &CGeneralSettingsDlg::OnBnClickedResetAutoRunButton)
+    ON_EN_CHANGE(IDC_MONITOR_SPAN_EDIT, &CGeneralSettingsDlg::OnEnChangeMonitorSpanEdit)
+    ON_MESSAGE(WM_SPIN_EDIT_POS_CHANGED, &CGeneralSettingsDlg::OnSpinEditPosChanged)
+    ON_BN_CLICKED(IDC_AUTO_RUN_METHOD_REGESTRY_RADIO, &CGeneralSettingsDlg::OnBnClickedAutoRunMethodRegestryRadio)
+    ON_BN_CLICKED(IDC_AUTO_RUN_METHOD_TASK_SCHEDULE_RADIO, &CGeneralSettingsDlg::OnBnClickedAutoRunMethodTaskScheduleRadio)
 END_MESSAGE_MAP()
 
 
@@ -126,8 +261,12 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
     // TODO:  在此添加额外的初始化
 
     ((CButton*)GetDlgItem(IDC_CHECK_UPDATE_CHECK))->SetCheck(m_data.check_update_when_start);
-    ((CButton*)GetDlgItem(IDC_ALLOW_SKIN_FONT_CHECK))->SetCheck(m_data.allow_skin_cover_font);
-    ((CButton*)GetDlgItem(IDC_ALLOW_SKIN_DISP_STR_CHECK))->SetCheck(m_data.allow_skin_cover_text);
+    if (theApp.IsForceShowNotifyIcon())
+    {
+        m_data.show_notify_icon = true;
+        EnableDlgCtrl(IDC_SHOW_NOTIFY_ICON_CHECK, FALSE);
+    }
+    CheckDlgButton(IDC_SHOW_NOTIFY_ICON_CHECK, m_data.show_notify_icon);
 
     if (m_data.update_source == 0)
         CheckDlgButton(IDC_GITHUB_RADIO, TRUE);
@@ -137,16 +276,46 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
     //检查开始菜单的“启动”目录下有没有程序的快捷方式，如果有则设置开机自启动，然后删除快捷方式
     wstring start_up_path = CCommon::GetStartUpPath();
     bool shortcut_exist = CCommon::FileExist((start_up_path + L"\\TrafficMonitor.lnk").c_str());
+    m_data.auto_run = false;
+#ifdef WITHOUT_TEMPERATURE
+    m_data.auto_run_by_task_scheduler = false;
+#else
+    m_data.auto_run_by_task_scheduler = true;
+#endif
+
     if (shortcut_exist)
     {
-        theApp.SetAutoRun(true);
+        theApp.SetAutoRun(true, false);
         m_data.auto_run = true;
         DeleteFile((start_up_path + L"\\TrafficMonitor.lnk").c_str());
+        CheckDlgButton(IDC_AUTO_RUN_METHOD_REGESTRY_RADIO, TRUE);
     }
+    //检查开机自动运行的设置是通过注册表还是任务计划程序实现的，并设置相应的选项
     else
     {
-        m_data.auto_run = theApp.GetAutoRun();
+        bool auto_run_by_registry = theApp.GetAutoRun(&m_auto_run_path, false);
+        if (auto_run_by_registry)
+        {
+            CheckDlgButton(IDC_AUTO_RUN_METHOD_REGESTRY_RADIO, TRUE);
+            m_data.auto_run = true;
+            m_data.auto_run_by_task_scheduler = false;
+        }
+        else
+        {
+            bool auto_run_by_task_scheduler = theApp.GetAutoRun(&m_auto_run_path, true);
+            if (auto_run_by_task_scheduler)
+            {
+                CheckDlgButton(IDC_AUTO_RUN_METHOD_TASK_SCHEDULE_RADIO, TRUE);
+                m_data.auto_run = true;
+                m_data.auto_run_by_task_scheduler = true;
+            }
+        }
     }
+    if (m_data.auto_run_by_task_scheduler)
+        CheckDlgButton(IDC_AUTO_RUN_METHOD_TASK_SCHEDULE_RADIO, TRUE);
+    else
+        CheckDlgButton(IDC_AUTO_RUN_METHOD_REGESTRY_RADIO, TRUE);
+
 
     ((CButton*)GetDlgItem(IDC_SAVE_TO_APPDATA_RADIO))->SetCheck(!m_data.portable_mode);
     ((CButton*)GetDlgItem(IDC_SAVE_TO_PROGRAM_DIR_RADIO))->SetCheck(m_data.portable_mode);
@@ -165,28 +334,33 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
     m_memory_tip_edit.SetValue(m_data.memory_usage_tip.tip_value);
 
     CheckDlgButton(IDC_CPU_TEMP_TIP_CHECK, m_data.cpu_temp_tip.enable);
-    m_cpu_temp_tip_edit.SetRange(1, 100);
+    m_cpu_temp_tip_edit.SetRange(1, 120);
     m_cpu_temp_tip_edit.SetValue(m_data.cpu_temp_tip.tip_value);
 
     CheckDlgButton(IDC_GPU_TEMP_TIP_CHECK, m_data.gpu_temp_tip.enable);
-    m_gpu_temp_tip_edit.SetRange(1, 100);
+    m_gpu_temp_tip_edit.SetRange(1, 120);
     m_gpu_temp_tip_edit.SetValue(m_data.gpu_temp_tip.tip_value);
 
     CheckDlgButton(IDC_HDD_TEMP_TIP_CHECK, m_data.hdd_temp_tip.enable);
-    m_hdd_temp_tip_edit.SetRange(1, 100);
+    m_hdd_temp_tip_edit.SetRange(1, 120);
     m_hdd_temp_tip_edit.SetValue(m_data.hdd_temp_tip.tip_value);
 
     CheckDlgButton(IDC_MBD_TEMP_TIP_CHECK, m_data.mainboard_temp_tip.enable);
-    m_mbd_temp_tip_edit.SetRange(1, 100);
+    m_mbd_temp_tip_edit.SetRange(1, 120);
     m_mbd_temp_tip_edit.SetValue(m_data.mainboard_temp_tip.tip_value);
 
     SetControlEnable();
 
     m_language_combo.AddString(CCommon::LoadText(IDS_FOLLOWING_SYSTEM));
-    m_language_combo.AddString(_T("English"));
-    m_language_combo.AddString(_T("简体中文"));
-    m_language_combo.AddString(_T("繁體中文"));
-    m_language_combo.SetCurSel(static_cast<int>(m_data.language));
+    int current_language_index{ -1 };       //当前语言在所有语言列表中的序号
+    for (size_t i = 0; i < theApp.m_str_table.GetLanguageList().size(); i++)
+    {
+        const LanguageInfo& language_info = theApp.m_str_table.GetLanguageList()[i];
+        m_language_combo.AddString(language_info.display_name.c_str());
+        if (language_info == m_data.language)
+            current_language_index = static_cast<int>(i);
+    }
+    m_language_combo.SetCurSel(current_language_index + 1);     //由于ComboBox第一项是“跟随系统”，因此ComboBox的序号需要加1
 
     ((CButton*)GetDlgItem(IDC_SHOW_ALL_CONNECTION_CHECK))->SetCheck(m_data.show_all_interface);
 
@@ -195,16 +369,22 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
     m_toolTip.AddTool(GetDlgItem(IDC_SHOW_ALL_CONNECTION_CHECK), CCommon::LoadText(IDS_SHOW_ALL_INFO_TIP));
     m_toolTip.AddTool(GetDlgItem(IDC_SAVE_TO_APPDATA_RADIO), theApp.m_appdata_dir.c_str());
     m_toolTip.AddTool(GetDlgItem(IDC_SAVE_TO_PROGRAM_DIR_RADIO), theApp.m_module_dir.c_str());
+    AddOrUpdateAutoRunTooltip(true);
 
-    ((CButton*)GetDlgItem(IDC_USE_CPU_TIME_RADIO))->SetCheck(m_data.m_get_cpu_usage_by_cpu_times);
-    ((CButton*)GetDlgItem(IDC_USE_PDH_RADIO))->SetCheck(!m_data.m_get_cpu_usage_by_cpu_times);
-
-    m_monitor_span_edit.SetRange(MONITOR_TIME_SPAN_MIN, MONITOR_TIME_SPAN_MAX);
+    m_monitor_span_edit.SetRange(MONITOR_TIME_SPAN_MIN, MONITOR_TIME_SPAN_MAX, MONITOR_SPAN_STEP);
     m_monitor_span_edit.SetValue(m_data.monitor_time_span);
 
     m_monitor_time_span_ori = m_data.monitor_time_span;
     m_update_source_ori = m_data.update_source;
 
+    if (CTrafficMonitorDlg::Instance()->IsGetDiskUsageByPdh())
+    {
+        const auto& disk_names = CTrafficMonitorDlg::Instance()->GetPdhDiskUsageHelper().GetDiskNames();
+        for (const auto& hdd_name : disk_names)
+            m_hard_disk_combo.AddString(hdd_name);
+        int cur_index = m_hard_disk_combo.FindString(-1, m_data.hard_disk_name.c_str());
+        m_hard_disk_combo.SetCurSel(cur_index);
+    }
 #ifndef WITHOUT_TEMPERATURE
     //初始化硬件监控Check box
     CheckDlgButton(IDC_CPU_CHECK, m_data.IsHardwareEnable(HI_CPU));
@@ -216,15 +396,18 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
     {
         CSingleLock sync(&theApp.m_minitor_lib_critical, TRUE);
         //初始化选择硬盘下拉列表
-        for (const auto& hdd_item : theApp.m_pMonitor->AllHDDTemperature())
-            m_hard_disk_combo.AddString(hdd_item.first.c_str());
-        int cur_index = m_hard_disk_combo.FindString(-1, m_data.hard_disk_name.c_str());
-        m_hard_disk_combo.SetCurSel(cur_index);
+        if (!CTrafficMonitorDlg::Instance()->IsGetDiskUsageByPdh())
+        {
+            for (const auto& hdd_item : theApp.m_pMonitor->AllHDDTemperature())
+                m_hard_disk_combo.AddString(hdd_item.first.c_str());
+            int cur_index = m_hard_disk_combo.FindString(-1, m_data.hard_disk_name.c_str());
+            m_hard_disk_combo.SetCurSel(cur_index);
+        }
         //初始化选择CPU下拉列表
         m_select_cpu_combo.AddString(CCommon::LoadText(IDS_AVREAGE_TEMPERATURE));
         for (const auto& cpu_item : theApp.m_pMonitor->AllCpuTemperature())
             m_select_cpu_combo.AddString(cpu_item.first.c_str());
-        cur_index = m_select_cpu_combo.FindString(-1, m_data.cpu_core_name.c_str());
+        int cur_index = m_select_cpu_combo.FindString(-1, m_data.cpu_core_name.c_str());
         if (cur_index < 0)
             cur_index = 0;
         m_select_cpu_combo.SetCurSel(cur_index);
@@ -245,9 +428,19 @@ BOOL CGeneralSettingsDlg::OnInitDialog()
     EnableDlgCtrl(IDC_GPU_CHECK, false);
     EnableDlgCtrl(IDC_HDD_CHECK, false);
     EnableDlgCtrl(IDC_MBD_CHECK, false);
-    EnableDlgCtrl(IDC_SELECT_HARD_DISK_COMBO, false);
+    //EnableDlgCtrl(IDC_SELECT_HARD_DISK_COMBO, false);
     EnableDlgCtrl(IDC_SELECT_CPU_COMBO, false);
+    EnableDlgCtrl(IDC_CPU_TEMP_STATIC, false);
+    EnableDlgCtrl(IDC_GPU_TEMP_STATIC, false);
+    EnableDlgCtrl(IDC_HDD_STATIC, false);
+    EnableDlgCtrl(IDC_MBD_TEMP_STATIC, false);
+    //EnableDlgCtrl(IDC_SELECT_HDD_STATIC, false);
+    EnableDlgCtrl(IDC_SELECT_CPU_STATIC, false);
+    EnableDlgCtrl(IDC_HARDWARE_MONITOR_STATIC, false);
 #endif
+
+    m_plugin_manager_btn.SetIcon(theApp.GetMenuIcon(IDI_PLUGINS));
+    m_select_connection_btn.SetIcon(theApp.GetMenuIcon(IDI_CONNECTION));
 
     return TRUE;  // return TRUE unless you set the focus to a control
                   // 异常: OCX 属性页应返回 FALSE
@@ -264,29 +457,16 @@ void CGeneralSettingsDlg::OnBnClickedCheckNowButton()
 void CGeneralSettingsDlg::OnBnClickedCheckUpdateCheck()
 {
     // TODO: 在此添加控件通知处理程序代码
-    m_data.check_update_when_start = (((CButton*)GetDlgItem(IDC_CHECK_UPDATE_CHECK))->GetCheck() != 0);
+    m_data.check_update_when_start = (IsDlgButtonChecked(IDC_CHECK_UPDATE_CHECK) != 0);
 }
 
 
 void CGeneralSettingsDlg::OnBnClickedAutoRunCheck()
 {
     // TODO: 在此添加控件通知处理程序代码
-    m_data.auto_run = (((CButton*)GetDlgItem(IDC_AUTO_RUN_CHECK))->GetCheck() != 0);
+    m_data.auto_run = (IsDlgButtonChecked(IDC_AUTO_RUN_CHECK) != 0);
     m_auto_run_modified = true;
-}
-
-
-void CGeneralSettingsDlg::OnBnClickedAllowSkinFontCheck()
-{
-    // TODO: 在此添加控件通知处理程序代码
-    m_data.allow_skin_cover_font = (((CButton*)GetDlgItem(IDC_ALLOW_SKIN_FONT_CHECK))->GetCheck() != 0);
-}
-
-
-void CGeneralSettingsDlg::OnBnClickedAllowSkinDispStrCheck()
-{
-    // TODO: 在此添加控件通知处理程序代码
-    m_data.allow_skin_cover_text = (((CButton*)GetDlgItem(IDC_ALLOW_SKIN_DISP_STR_CHECK))->GetCheck() != 0);
+    SetControlEnable();
 }
 
 
@@ -304,23 +484,37 @@ void CGeneralSettingsDlg::OnOK()
         if (value < 1) value = 1;
         if (value > 100) value = 100;
     };
+    auto checkTempTipValue = [](int& value)
+    {
+        if (value < 1) value = 1;
+        if (value > 120) value = 120;
+    };
     m_data.memory_usage_tip.tip_value = m_memory_tip_edit.GetValue();
     checkTipValue(m_data.memory_usage_tip.tip_value);
 
     m_data.cpu_temp_tip.tip_value = m_cpu_temp_tip_edit.GetValue();
-    checkTipValue(m_data.cpu_temp_tip.tip_value);
+    checkTempTipValue(m_data.cpu_temp_tip.tip_value);
 
     m_data.gpu_temp_tip.tip_value = m_gpu_temp_tip_edit.GetValue();
-    checkTipValue(m_data.gpu_temp_tip.tip_value);
+    checkTempTipValue(m_data.gpu_temp_tip.tip_value);
 
     m_data.hdd_temp_tip.tip_value = m_hdd_temp_tip_edit.GetValue();
-    checkTipValue(m_data.hdd_temp_tip.tip_value);
+    checkTempTipValue(m_data.hdd_temp_tip.tip_value);
 
     m_data.mainboard_temp_tip.tip_value = m_mbd_temp_tip_edit.GetValue();
-    checkTipValue(m_data.mainboard_temp_tip.tip_value);
+    checkTempTipValue(m_data.mainboard_temp_tip.tip_value);
 
     //获取语言的设置
-    m_data.language = static_cast<Language>(m_language_combo.GetCurSel());
+    m_data.language = LanguageInfo();
+    if (m_language_combo.GetCurSel() > 0)
+    {
+        //选择的不是“跟随系统”
+        int current_language_index = m_language_combo.GetCurSel() - 1;
+        if (current_language_index >= 0 && current_language_index < static_cast<int>(theApp.m_str_table.GetLanguageList().size()))
+        {
+            m_data.language = theApp.m_str_table.GetLanguageList()[current_language_index];
+        }
+    }
     if (m_data.language != theApp.m_general_data.language)
     {
         MessageBox(CCommon::LoadText(IDS_LANGUAGE_CHANGE_INFO), NULL, MB_ICONINFORMATION | MB_OK);
@@ -334,22 +528,7 @@ void CGeneralSettingsDlg::OnOK()
         MessageBox(CCommon::LoadText(IDS_CFG_DIR_CHANGED_INFO), NULL, MB_ICONINFORMATION | MB_OK);
     }
 
-    m_data.monitor_time_span = m_monitor_span_edit.GetValue();
-
-    //如果选项设置中关闭了某个硬件监控，则不显示对应的温度监控相关项目
-    int taskbar_displat_item_ori = theApp.m_cfg_data.m_tbar_display_item;
-    if (!m_data.IsHardwareEnable(HI_CPU))
-        theApp.m_cfg_data.m_tbar_display_item &= ~TDI_CPU_TEMP;
-    if (!m_data.IsHardwareEnable(HI_GPU))
-    {
-        theApp.m_cfg_data.m_tbar_display_item &= ~TDI_GPU_USAGE;
-        theApp.m_cfg_data.m_tbar_display_item &= ~TDI_GPU_TEMP;
-    }
-    if (!m_data.IsHardwareEnable(HI_HDD))
-        theApp.m_cfg_data.m_tbar_display_item &= ~TDI_HDD_TEMP;
-    if (!m_data.IsHardwareEnable(HI_MBD))
-        theApp.m_cfg_data.m_tbar_display_item &= ~TDI_MAIN_BOARD_TEMP;
-    m_taskbar_item_modified = (theApp.m_cfg_data.m_tbar_display_item != taskbar_displat_item_ori);
+    //m_taskbar_item_modified = (theApp.m_taskbar_data.display_item != taskbar_displat_item_ori);
 
     CTabDlg::OnOK();
 }
@@ -358,7 +537,7 @@ void CGeneralSettingsDlg::OnOK()
 void CGeneralSettingsDlg::OnBnClickedTodayTrafficTipCheck()
 {
     // TODO: 在此添加控件通知处理程序代码
-    m_data.traffic_tip_enable = (((CButton*)GetDlgItem(IDC_TODAY_TRAFFIC_TIP_CHECK))->GetCheck() != 0);
+    m_data.traffic_tip_enable = (IsDlgButtonChecked(IDC_TODAY_TRAFFIC_TIP_CHECK) != 0);
     SetControlEnable();
 }
 
@@ -366,7 +545,7 @@ void CGeneralSettingsDlg::OnBnClickedTodayTrafficTipCheck()
 void CGeneralSettingsDlg::OnBnClickedMemoryUsageTipCheck()
 {
     // TODO: 在此添加控件通知处理程序代码
-    m_data.memory_usage_tip.enable = (((CButton*)GetDlgItem(IDC_MEMORY_USAGE_TIP_CHECK))->GetCheck() != 0);
+    m_data.memory_usage_tip.enable = (IsDlgButtonChecked(IDC_MEMORY_USAGE_TIP_CHECK) != 0);
     SetControlEnable();
 }
 
@@ -381,7 +560,8 @@ void CGeneralSettingsDlg::OnBnClickedOpenConfigPathButton()
 void CGeneralSettingsDlg::OnBnClickedShowAllConnectionCheck()
 {
     // TODO: 在此添加控件通知处理程序代码
-    m_data.show_all_interface = (((CButton*)GetDlgItem(IDC_SHOW_ALL_CONNECTION_CHECK))->GetCheck() != 0);
+    m_data.show_all_interface = (IsDlgButtonChecked(IDC_SHOW_ALL_CONNECTION_CHECK) != 0);
+    SetControlEnable();
 }
 
 
@@ -394,35 +574,15 @@ BOOL CGeneralSettingsDlg::PreTranslateMessage(MSG* pMsg)
     return CTabDlg::PreTranslateMessage(pMsg);
 }
 
-
-void CGeneralSettingsDlg::OnBnClickedUseCpuTimeRadio()
+afx_msg LRESULT CGeneralSettingsDlg::OnSpinEditPosChanged(WPARAM wParam, LPARAM lParam)
 {
-    // TODO: 在此添加控件通知处理程序代码
-    m_data.m_get_cpu_usage_by_cpu_times = true;
-}
-
-
-void CGeneralSettingsDlg::OnBnClickedUsePdhRadio()
-{
-    // TODO: 在此添加控件通知处理程序代码
-    m_data.m_get_cpu_usage_by_cpu_times = false;
-}
-
-void CGeneralSettingsDlg::OnDeltaposSpin(NMHDR* pNMHDR, LRESULT* pResult)
-{
-    //这里响应微调按钮（spin button）点击上下按钮时的事件，
-    //CSpinButtonCtrl的对象是作为CSpinEdit的成员变量的，而此消息会向CSpinButtonCtrl的父窗口发送，但是CSpinEdit不是它的父窗口，
-    //因此此消息无法在CSpinEdit中响应，只能在这里响应。
-    //所有CSpinEdit类中的Spin按钮点击时的响应都在这里，因为这些Spin按钮的ID都是“SPIN_ID”。
-    //通过GetBuddy的返回值判断微调按钮是属于哪个EditBox的。
-
-    CSpinButtonCtrl* pSpin = (CSpinButtonCtrl*)CWnd::FromHandle(pNMHDR->hwndFrom);
+    CSpinButtonCtrl* pSpin = (CSpinButtonCtrl*)wParam;
     if (pSpin == nullptr)
-        return;
+        return 0;
     CWnd* pEdit = pSpin->GetBuddy();
     if (pEdit == &m_monitor_span_edit)       //当用户点击了“监控时间间隔”的微调按钮时
     {
-        LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+        LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(lParam);
         if (pNMUpDown->iDelta == -1)
         {
             // 用户按下了spin控件的向下箭头
@@ -443,7 +603,7 @@ void CGeneralSettingsDlg::OnDeltaposSpin(NMHDR* pNMHDR, LRESULT* pResult)
         }
         pNMUpDown->iDelta = 0;
     }
-    *pResult = 0;
+    return 0;
 }
 
 
@@ -538,8 +698,8 @@ void CGeneralSettingsDlg::OnCbnSelchangeSelectHardDiskCombo()
 {
     // TODO: 在此添加控件通知处理程序代码
     CString hard_disk_name;
-   m_hard_disk_combo.GetWindowText(hard_disk_name);
-   m_data.hard_disk_name = hard_disk_name.GetString();
+    m_hard_disk_combo.GetWindowText(hard_disk_name);
+    m_data.hard_disk_name = hard_disk_name.GetString();
 }
 
 
@@ -602,4 +762,69 @@ void CGeneralSettingsDlg::OnCbnSelchangeSelectCpuCombo()
     CString cpu_core_name;
     m_select_cpu_combo.GetWindowText(cpu_core_name);
     m_data.cpu_core_name = cpu_core_name.GetString();
+}
+
+
+void CGeneralSettingsDlg::OnBnClickedPluginManageButton()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    CPluginManagerDlg dlg;
+    dlg.DoModal();
+}
+
+
+void CGeneralSettingsDlg::OnBnClickedShowNotifyIconCheck()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    m_data.show_notify_icon = (IsDlgButtonChecked(IDC_SHOW_NOTIFY_ICON_CHECK) != 0);
+}
+
+
+void CGeneralSettingsDlg::OnBnClickedSelectConnectionsButton()
+{
+    // TODO: 在此添加控件通知处理程序代码
+    CSelectConnectionsDlg dlg(m_data.connections_hide);
+    if (dlg.DoModal() == IDOK)
+    {
+        m_data.connections_hide = dlg.GetData();
+    }
+}
+
+
+void CGeneralSettingsDlg::OnBnClickedResetAutoRunButton()
+{
+    //先删除开机自动运行
+    theApp.SetAutoRunByRegistry(false);
+    theApp.SetAutoRunByTaskScheduler(false);
+    if (!theApp.SetAutoRun(true, m_data.auto_run_by_task_scheduler))    //重新设置开机自动运行
+    {
+        MessageBox(CCommon::LoadText(IDS_SET_AUTO_RUN_FAILED_WARNING), NULL, MB_ICONWARNING | MB_OK);
+        return;
+    }
+    //获取开机自动运行的路径
+    bool auto_run = theApp.GetAutoRun(&m_auto_run_path, m_data.auto_run_by_task_scheduler);
+    //重新勾选“开机自动运行”复选框
+    CheckDlgButton(IDC_AUTO_RUN_CHECK, auto_run);
+    //更新鼠标提示
+    AddOrUpdateAutoRunTooltip(false);
+}
+
+
+void CGeneralSettingsDlg::OnEnChangeMonitorSpanEdit()
+{
+    m_data.monitor_time_span = m_monitor_span_edit.GetValue();
+}
+
+void CGeneralSettingsDlg::OnBnClickedAutoRunMethodRegestryRadio()
+{
+    m_data.auto_run_by_task_scheduler = false;
+    m_auto_run_modified = true;
+    SetControlEnable();
+}
+
+void CGeneralSettingsDlg::OnBnClickedAutoRunMethodTaskScheduleRadio()
+{
+    m_data.auto_run_by_task_scheduler = true;
+    m_auto_run_modified = true;
+    SetControlEnable();
 }
