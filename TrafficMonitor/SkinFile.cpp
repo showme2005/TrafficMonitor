@@ -7,6 +7,7 @@
 #include "DrawCommon.h"
 #include "DrawCommonEx.h"
 #include "SkinManager.h"
+#include "DrawCommonHelper.h"
 
 
 CSkinFile::CSkinFile()
@@ -529,6 +530,8 @@ void CSkinFile::DrawPreview(CDC* pDC, CRect rect)
                         }
                         draw.GetDC()->SetTextColor(cl);
                         plugin_item->DrawItem(draw.GetDC()->GetSafeHdc(), point.x, point.y, layout_item.width, m_layout_info.text_height, brightness >= 128);
+                        if (plugin != nullptr && plugin->GetAPIVersion() >= 8)
+                            plugin_item->DrawItemEx(&draw, rect.left, rect.top, rect.Width(), rect.Height(), brightness >= 128);
                     }
                     else
                     {
@@ -688,6 +691,8 @@ void CSkinFile::DrawItemsInfo(IDrawCommon& drawer, Layout& layout, CFont& font) 
                 drawer.GetDC()->SetTextColor(cl);
                 drawer.GetDC()->SetBkMode(TRANSPARENT);
                 plugin_item->DrawItem(drawer.GetDC()->GetSafeHdc(), layout_item.x, layout_item.y, layout_item.width, m_layout_info.text_height, brightness >= 128);
+                if (plugin != nullptr && plugin->GetAPIVersion() >= 8)
+                    plugin_item->DrawItemEx(&drawer, layout_item.x, layout_item.y, layout_item.width, m_layout_info.text_height, brightness >= 128);
             }
             else
             {

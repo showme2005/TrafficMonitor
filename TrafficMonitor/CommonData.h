@@ -177,13 +177,10 @@ struct LanguageInfo
     wstring translator_url;
     WORD language_id{};
 
-    bool operator==(const LanguageInfo& another) const
-    {
-        return bcp_47 == another.bcp_47 && display_name == another.display_name && translator == another.translator;
-    }
-
+    bool operator==(const LanguageInfo& another) const;
     wstring toConfigString() const;
     void fromConfigString(const wstring& config_str);
+    bool isEmpty() const;
 };
 
 //选项设置数据
@@ -378,6 +375,15 @@ struct GeneralSettingData
     LanguageInfo language;
 
     bool show_all_interface{ true };
+
+    //CPU利用率获取方式
+    enum CpuUsageAcquireMethod
+    {
+        CA_CPU_TIME,    //使用时间
+        CA_PDH         //性能计数器
+    };
+    CpuUsageAcquireMethod cpu_usage_acquire_method{};  //获取CPU利用率的方式
+
     bool portable_mode{ false };        //便携模式，如果为true，则程序所有数据都保存到exe所在目录下，否则保存到Appdata\Romaing目录下
     int monitor_time_span{ 1000 };    //监控的时间间隔
 
